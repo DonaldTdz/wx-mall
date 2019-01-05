@@ -52,29 +52,29 @@ export default class extends wepy.app {
     },
     "tabBar": {
       "color": "#999999",
-      "selectedColor": "#ff6a3c",
+      "selectedColor": "#0b467e",
       "backgroundColor": "#ffffff",
       "borderStyle": "black",
       "list": [{
         "pagePath": "pages/home",
-        "text": "首页",
-        "iconPath": "images/icon_home.png",
-        "selectedIconPath": "images/icon_home_active.png"
+        "text": "商城",
+        "iconPath": "images/dz_home.png",
+        "selectedIconPath": "images/dz_home_active.png"
       }, {
         "pagePath": "pages/classify",
         "text": "分类",
-        "iconPath": "images/icon_classify.png",
-        "selectedIconPath": "images/icon_classify_active.png"
+        "iconPath": "images/dz_classify.png",
+        "selectedIconPath": "images/dz_classify_active.png"
       }, {
         "pagePath": "pages/shop_cart",
         "text": "购物车",
-        "iconPath": "images/icon_shop_cart.png",
-        "selectedIconPath": "images/icon_shop_cart_active.png"
+        "iconPath": "images/dz_cart.png",
+        "selectedIconPath": "images/dz_cart_active.png"
       }, {
         "pagePath": "pages/info",
-        "text": "我",
-        "iconPath": "images/icon_info.png",
-        "selectedIconPath": "images/icon_info_active.png"
+        "text": "我的",
+        "iconPath": "images/dz_info.png",
+        "selectedIconPath": "images/dz_info_active.png"
       }]
     }
   }
