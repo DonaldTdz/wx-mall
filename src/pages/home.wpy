@@ -24,7 +24,19 @@
         <image src="../images/icon_nav_01_new.png" class="nav_icon"></image>
         <view class="nav_text">签到有礼</view>
       </navigator>
-      <navigator open-type="navigate" url="/pages/exchange_goods">
+      <navigator open-type="navigate" url="/pages/sign_in">
+        <image src="../images/icon_nav_03.png" class="nav_icon"></image>
+        <view class="nav_text">商品分类</view>
+      </navigator>
+      <navigator open-type="navigate" url="/pages/sign_in">
+        <image src="../images/icon_nav_04_new.png" class="nav_icon"></image>
+        <view class="nav_text">新品上架</view>
+      </navigator>
+      <navigator open-type="navigate" url="/pages/sign_in">
+        <image src="../images/icon_nav_03.png" class="nav_icon"></image>
+        <view class="nav_text">我的订单</view>
+      </navigator>
+      <!-- <navigator open-type="navigate" url="/pages/exchange_goods">
         <image src="../images/icon_nav_02_new.png" class="nav_icon"></image>
         <view class="nav_text">换货专区</view>
       </navigator>
@@ -35,35 +47,43 @@
       <navigator open-type="navigate" url="/pages/replenishment_goods">
         <image src="../images/icon_nav_04_new.png" class="nav_icon"></image>
         <view class="nav_text">我要补货</view>
-      </navigator>
+      </navigator> -->
     </view>
     <!--发现好商品模块-->
-    <discover :list.sync="discoverList"></discover>
+    <!-- <discover :list.sync="discoverList"></discover> -->
     <!--加载更多时动画-->
     <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
     <!--暂无数据显示-->
     <placeholder :show.sync="is_empty" message="暂无发现数据"></placeholder>
     <!--弹屏  types:0 图片  1：领红包   show 是否显示  @close 关闭回调  @callback 点击图片回调 或确定回调-->
-    <bombscreen :types.sync="tps" :show.sync="is_show_alert" @close.user="closeAlert" @callback.user="alertCallback"></bombscreen>
+    <!-- <bombscreen :types.sync="tps" :show.sync="is_show_alert" @close.user="closeAlert" @callback.user="alertCallback"></bombscreen> -->
+    <!--热销商品 2019-1-7-->
+    <view class="homeview">
+      <view class="homeview_title_doc">热卖商品</view>
+    </view>
+    <shopGridList :purchasetype.sync="purchasetype" :list.sync="list"></shopGridList>
   </view>
 </template>
 <script>
 import wepy from 'wepy';
 import api from '@/api/api';
+import dzapi from '@/api/dzapi';
 import tip from '@/utils/tip'
 import Discover from '@/components/discover'
 import Bombscreen from '@/components/bomb_screen'
 import BottomLoadMore from "../components/common/bottomLoadMore"
 import Placeholder from "../components/common/placeholder"
+import ShopGridList from '@/components/shop_grid_list'
 export default class Home extends wepy.page {
   config = {
-    navigationBarTitleText: '演示商城',
+    navigationBarTitleText: '积分商城',
   }
   components = {
     discover: Discover,
     bottomLoadMore: BottomLoadMore,
     placeholder: Placeholder,
-    bombscreen: Bombscreen
+    bombscreen: Bombscreen,
+    shopGridList: ShopGridList
   }
   data = {
     indicatorDots: true,
@@ -85,7 +105,9 @@ export default class Home extends wepy.page {
     //广告列表
     adList: [],
     tps: 0,
-    is_show_alert: true
+    is_show_alert: true,
+    list: [],
+    purchasetype: 1
   }
   async getDiscoverList(currentPage, size) {
     let that = this;
@@ -123,7 +145,8 @@ export default class Home extends wepy.page {
   onLoad() {
     let that = this;
     this.discoverList = [];
-    that.getDiscoverList();
+    //that.getDiscoverList();
+    that.getHeatGoods();
     this.getAdList();
   }
   computed = {}
@@ -143,7 +166,7 @@ export default class Home extends wepy.page {
         console.log(res.target)
       }
       return {
-        title: '素洁服装厂',
+        title: '达州烟草',
         path: '/pages/home',
         success: function(res) {
           // 转发成功
@@ -161,8 +184,31 @@ export default class Home extends wepy.page {
     }
   }
   events = {}
+  async getHeatGoods(currentPage, size) {
+    let that = this;
+    const json = await dzapi.getHeatGoods({
+      query: {
+        Page: currentPage || 1,
+        Size: size || 10
+      }
+    });
+    console.log(json);
+    
+    if (json.data.success == true) {
+      that.list = [...that.list, ...json.data.result.items];
+      that.page_total = json.data.result.pageTotal;
+      if (json.data.result.pageTotal == 0) {
+        //暂无数据
+        that.is_empty = true;
+      }
+    } else {
+      tip.error(json.data.error);
+    }
+    that.showLoading = false;
+    that.$apply();
+  }
   //加载更多
-  onReachBottom() {
+  /*onReachBottom() {
     let that = this;
     that.showLoading = true;
     console.log(that.page_total + "===" + that.currentPage);
@@ -179,7 +225,26 @@ export default class Home extends wepy.page {
     } else {
       that.showLoading = false;
     }
-  };
+  };*/
+  //加载更多
+    onReachBottom() {
+      let that = this;
+      that.showLoading = true;
+      console.log(that.page_total + "===" + that.currentPage);
+      //判断总页数是否大于翻页数
+      if ((that.page_total) > that.currentPage) {
+        //防止重复加载
+        if (that.preventRepeatReuqest) {
+          return true;
+        }
+        that.preventRepeatReuqest = true;
+        that.currentPage++;
+        that.getHeatGoods(that.currentPage);
+        that.preventRepeatReuqest = false;
+      } else {
+        that.showLoading = false;
+      }
+    };
 }
 
 </script>
@@ -243,5 +308,33 @@ export default class Home extends wepy.page {
   text-align: center;
   color: #333;
 }
+
+.homeview {
+    text-align: center;
+    font-size: 30rpx;
+    padding: 30rpx 0rpx;
+    position: relative;
+}
+
+.homeview_title_doc {
+    display: inline-block;
+    position: relative;
+    z-index: 999;
+    width: 190rpx;
+    background: #f7f7f7;
+}
+
+.homeview:before {
+    content: '';
+    height: 1rpx;
+    width: 460rpx;
+    position: absolute;
+    background: #dbdbdb;
+    top: 50rpx;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+}
+
 
 </style>
