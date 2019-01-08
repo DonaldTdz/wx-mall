@@ -19,6 +19,9 @@ export default class Search extends wepy.component {
     show : 1
   }
 
+  props = {
+  }
+
   events = {
 
   }

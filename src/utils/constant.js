@@ -20,3 +20,7 @@ export const SYSTEM_INFO = "systemInfo";
 export const ADDRESS_ID = "addressId";
 
 export const SEL_CLASS_CODE = "selClassCode";
+/**
+ * 搜索关键字
+ */
+export const KEY_WORD_HISTORY = "keyWordHistory";

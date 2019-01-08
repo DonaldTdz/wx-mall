@@ -14,8 +14,8 @@
     <view class="history {{show?'':'hidden'}}" wx:else>
       <view class="doc">历史记录</view>
       <view class="lable">
-        <view wx:for="{{keywordhisList}}" wx:key="item" @tap.stop="selHisKeyWord" data-id="{{item.id}}">
-          <view class="child {{item.sel=='1' ?'active':''}}">{{item.keyword}}</view>
+        <view wx:for="{{keywordhisList}}" wx:key="item" @tap.stop="selHisKeyWord" data-keys="{{item}}">
+          <view class="child {{item == keyword ?'active':''}}">{{item}}</view>
         </view>
       </view>
       <view class="btn_box">
@@ -32,7 +32,8 @@
   import tip from '@/utils/tip'
   import {
     SYSTEM_INFO,
-    USER_SPECICAL_INFO
+    USER_SPECICAL_INFO,
+    KEY_WORD_HISTORY
   } from '@/utils/constant';
   import Searchs from '@/components/search'
   import FilterBar from "../components/filter_bar"
@@ -71,7 +72,7 @@
       skuval: 0
     }
     async getKeyWordHisList() {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      /*let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
       const json = await api.searchKeywordList({
         query: {
@@ -80,7 +81,8 @@
       });
       if (json.data.code == 0) {
         this.keywordhisList = json.data.list;
-      }
+      }*/
+      this.keywordhisList = wepy.getStorageSync(KEY_WORD_HISTORY) || [];
       this.$apply();
     }
     setTitle(title) {
@@ -132,18 +134,23 @@
       that.showLoading = false;
       that.$apply();
       if (keyword.length > 0) {
-        let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+        /*let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
         let openId = userSpecialInfo.openid;
         const resultJson = await api.addSearchKeyword({
           query: {
             openId: openId,
             keyword: keyword
           }
-        });
+        });*/
+        if(this.keywordhisList.indexOf(keyword) < 0){
+            this.keywordhisList.push(keyword);
+            wepy.setStorageSync(KEY_WORD_HISTORY, this.keywordhisList);
+            this.$apply();
+        }
       }
     }
     async clearUserKeywords() {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      /*let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
       const json = await api.clearSearchKeyword({
         query: {
@@ -154,7 +161,9 @@
         this.keywordhisList = [];
       } else {
         tip.error(json.data.msg);
-      }
+      }*/
+      wepy.removeStorageSync(KEY_WORD_HISTORY);
+      this.keywordhisList = [];
       this.$apply();
     }
     methods = {
@@ -193,7 +202,7 @@
         this.doSearchGoods(this.keyword);
       },
       selHisKeyWord(e) {
-        console.log(e);
+        /*console.log(e);
         var id = e.currentTarget.dataset.id;
         var hisKeyword = "";
         for (var i = 0; i < this.keywordhisList.length; i++) {
@@ -202,9 +211,11 @@
             hisKeyword = this.keywordhisList[i].keyword;
             this.keywordhisList[i].sel = 1;
           }
-        }
+        }*/
+        var hisKeyword = e.currentTarget.dataset.keys;
         if (hisKeyword.length > 0) {
           this.keyword = hisKeyword;
+          this.$apply();
           this.doSearchGoods(hisKeyword);
         }
       },
