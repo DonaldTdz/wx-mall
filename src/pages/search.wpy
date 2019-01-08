@@ -28,6 +28,7 @@
 <script>
   import wepy from 'wepy';
   import api from '@/api/api';
+  import dzapi from '@/api/dzapi';
   import tip from '@/utils/tip'
   import {
     SYSTEM_INFO,
@@ -65,9 +66,9 @@
       keywordhisList: [],
       cateCode: "",
       show: true,
-      sort: -1,
+      sort: 0,
       title: "",
-      skuval: ""
+      skuval: 0
     }
     async getKeyWordHisList() {
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
@@ -89,7 +90,7 @@
     }
     onLoad(option) {
       this.list = [];
-      this.skuval = "";
+      this.skuval = 0;
       this.cateCode = option.cateCode;
       if (this.cateCode != undefined && this.cateCode.length > 0) { //分类进入
         this.$invoke('search', 'show', "0");
@@ -106,20 +107,22 @@
     computed = {}
     async doSearchGoods(keyword, currentPage, size) {
       let that = this;
-      const json = await api.getGoodsList({
+      const json = await dzapi.getSearchGoods({
         query: {
-          page: currentPage || 1,
-          size: size || 10,
-          searchKeyWords: this.keyword,
-          cateCode: this.cateCode || "",
-          sort: this.sort,
-          skuval: this.skuval
+          Page: currentPage || 1,
+          Size: size || 10,
+          KeyWord: this.keyword,
+          CateCode: this.cateCode || "",
+          SortType: this.sort,
+          CategoryId: this.skuval
         }
       });
-      if (json.data.code == 0) {
-        that.list = [...that.list, ...json.data.list];
-        that.page_total = json.data.page_total;
-        if (json.data.page_total == 0) {
+      console.log(json);
+      
+      if (json.data.success == true) {
+        that.list = [...that.list, ...json.data.result.items];
+        that.page_total = json.data.result.pageTotal;
+        if (json.data.result.pageTotal == 0) {
           //暂无数据
           that.is_empty = true;
         }
@@ -170,14 +173,14 @@
         var name = obj.name;
         var type = obj.type;
         if (name == "zhonghe") {
-          this.sort = -1;
+          this.sort = 1;
         } else if (name == "sale") {
-          this.sort = 3;
+          this.sort = 2;
         } else if (name == "price") {
           if (type == "desc") {
-            this.sort = 2;
+            this.sort = 4;
           } else if (type == "asc") {
-            this.sort = 1;
+            this.sort = 3;
           }
         } else if (name == "sku") {
           this.skuval = type;

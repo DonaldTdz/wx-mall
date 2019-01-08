@@ -53,8 +53,6 @@
     <!-- <discover :list.sync="discoverList"></discover> -->
     <!--加载更多时动画-->
     <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
-    <!--暂无数据显示-->
-    <placeholder :show.sync="is_empty" message="暂无发现数据"></placeholder>
     <!--弹屏  types:0 图片  1：领红包   show 是否显示  @close 关闭回调  @callback 点击图片回调 或确定回调-->
     <!-- <bombscreen :types.sync="tps" :show.sync="is_show_alert" @close.user="closeAlert" @callback.user="alertCallback"></bombscreen> -->
     <!--热销商品 2019-1-7-->
@@ -62,6 +60,8 @@
       <view class="homeview_title_doc">热卖商品</view>
     </view>
     <shopGridList :purchasetype.sync="purchasetype" :list.sync="list"></shopGridList>
+    <!--暂无数据显示-->
+    <placeholder :show.sync="is_empty" message="暂无发现数据"></placeholder>
   </view>
 </template>
 <script>
@@ -192,7 +192,7 @@ export default class Home extends wepy.page {
         Size: size || 10
       }
     });
-    console.log(json);
+    //console.log(json);
     
     if (json.data.success == true) {
       that.list = [...that.list, ...json.data.result.items];
