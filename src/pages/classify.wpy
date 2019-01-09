@@ -9,15 +9,15 @@
   </view>
   <view class="classify" style="height:{{windowHeight-50}}px">
     <scroll-view class="classify_catetory" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
-      <view class="name {{item.active? 'active':''}}" wx:for="{{rootcateList}}" wx:key="item" @tap="changeCate" data-code="{{item.code}}">
+      <view class="name {{item.active? 'active':''}}" wx:for="{{rootcateList}}" wx:key="item" @tap="changeCate" data-code="{{item.id}}">
         {{item.name}}
       </view>
     </scroll-view>
     <scroll-view class="classify_detail" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
         <view class="children">
-          <navigator hover-class="none" class="children_item" wx:for="{{childcateList}}" wx:for-item="item" wx:key="index" url="/pages/search?cateCode={{item.secondCategory.code}}&title={{item.secondCategory.name}}">
-            <image class="child_image" src="{{item.secondCategory.thumLogo}}"></image>
-            <view class="child_name">{{item.secondCategory.name}}</view>
+           <navigator hover-class="none" class="children_item" wx:for="{{childcateList}}" wx:for-item="item" wx:key="index" url="/pages/goods_detail?id={{item.id}}">
+            <image class="child_image" src="{{item.thumLogo}}"></image>
+            <view class="child_name">{{item.name}}</view>
           </navigator>
         </view>
     </scroll-view>
@@ -26,6 +26,7 @@
 <script>
 import wepy from 'wepy';
 import api from '@/api/api';
+import dzapi from "@/api/dzapi";
 import {
   SYSTEM_INFO,
   SEL_CLASS_CODE
@@ -52,34 +53,35 @@ export default class Classify extends wepy.page {
   }
 
   async getChildCate(rootCateCode) {
-    const json = await api.childGoodsCatetoryList({
+    const json = await dzapi.getGroupGoods({
       query: {
-        rootCategoryCode: rootCateCode
+        groupId: rootCateCode,
+        top: 60
       }
     });
-    if (json.data.code == 0) {
-      this.childcateList = json.data.list;
+    if (json.data.success == true) {
+      this.childcateList = json.data.result;
     } else {
-      tip.error(json.data.msg);
+      tip.error(json.data.error);
     }
     this.$apply();
   }
 
   async getRootCateTopLevel() {
-    const json = await api.rootCtegoryList({
+    const json = await dzapi.getGoodsCategories({
       query: {}
     });
-    if (json.data.code == 0) {
-      this.rootcateList = json.data.list;
+    if (json.data.success == true) {
+      this.rootcateList = json.data.result;
       if (this.rootcateList.length > 0) {
         let selCode = wx.getStorageSync(SEL_CLASS_CODE);
-        var selRottCateCode = this.rootcateList[0].code;
+        var selRottCateCode = this.rootcateList[0].id;
         if (selCode.length==0) {
           this.rootcateList[0].active = true;
         } else {
           for (var i = 0; i < this.rootcateList.length; i++) {
-            if (selCode == this.rootcateList[i].code) {
-              selRottCateCode = this.rootcateList[i].code;
+            if (selCode == this.rootcateList[i].id) {
+              selRottCateCode = this.rootcateList[i].id;
               this.rootcateList[i].active = true;
             }
           }
@@ -88,7 +90,7 @@ export default class Classify extends wepy.page {
         this.getChildCate(selRottCateCode);
       }
     } else {
-      tip.error(json.data.msg);
+      tip.error(json.data.error);
     }
     this.$apply();
   }
@@ -117,7 +119,7 @@ export default class Classify extends wepy.page {
       for (var i = 0; i < this.rootcateList.length; i++) {
         var rootCate = this.rootcateList[i];
         rootCate.active = false;
-        if (rootCate.code == code) {
+        if (rootCate.id == code) {
           rootCate.active = true;
         }
       }
