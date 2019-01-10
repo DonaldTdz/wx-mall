@@ -5,84 +5,80 @@
     <swiper indicator-dots="true" autoplay="true" interval="5000" duration="500" indicator-active-color="#ffc452" indicator-color="#efefef" class="swiper">
       <block wx:for="{{detail.photoList}}" key="item" item="item" wx:key="key">
         <swiper-item>
-          <image src="{{item.photo}}" data-src="{{item.photo}}" class="slide-image" @tap="previewImage" />
+          <image src="{{item}}" data-src="{{item}}" class="slide-image" @tap="previewImage" />
         </swiper-item>
       </block>
     </swiper>
     <view class="details-msg">
-      <view class="details-title">{{detail.name}}</view>
+      <view class="details-title">{{detail.specification}}</view>
       <view class="details_pinfo">
-        <text class="price">￥{{detail.price}}</text>
-        <view class="order_time {{purchasetype==2||special==1?'hidden':''}}">
-          <timer :startTime.sync="startTime" :endTime.sync="endTime"></timer>
+        <view>
+        <text class="price">{{detail.integral}}积分</text>
         </view>
-<!--         <view class="share-box">
+        <!--<view class="order_time {{purchasetype==2||special==1?'hidden':''}}">
+          <timer :startTime.sync="startTime" :endTime.sync="endTime"></timer>
+        </view> -->
+       <view class="share-box">
           <i class="iconfont icon-share"></i>
           <text>分享</text>
-        </view> -->
+        </view>
       </view>
-      <view class="baoyou">满{{detail.freeShipNum}}件包邮</view>
+      <view class="baoyou"> 
+        <view class="lable">
+          <view>
+              <view class="child">{{detail.categoryName}}</view>
+            </view>
+            <view wx:for="{{detail.exchangeList}}">
+              <view class="child">{{item}}</view>
+            </view>
+          </view>
+          </view>
     </view>
     <view class="order_num">
-      <view class="doc" wx:if="{{special == 1}}">库存:
-        <text class="num">{{detail.stockNum}}件</text>
+      <view class="doc" wx:if="{{detail.stock}}">剩余:
+        <text class="num">{{detail.stock}}</text>{{detail.unit}}
       </view>
-      <view class="doc" wx:else>规定单数:
-        <text class="num">{{detail.minBuyNum}}件成团</text>
-      </view>
-      <view class="doc">订单中:
-        <text class="num">已拼{{detail.saleCount}}件</text>
+       <view class="doc" wx:if="{{detail.sellCount}}">销量:
+        <text class="num">{{detail.sellCount}}</text>{{detail.unit}}
       </view>
     </view>
+      <!-- <view class="doc">订单中:
+        <text class="num">已拼{{detail.saleCount}}件</text>
+      </view> -->
+    </view>
+    <view class="block" wx:if="{{detail.desc}}" >
+      <view class="block_title">商品描述</view>
+    </view>
+    <view class="block_content" wx:if="{{detail.desc}}" >
+      <view class="doc">
+        {{detail.desc}}
+        <!-- <view class="wxParse-p">
+           <template is="wxParse" data="{{wxParseData:detail.desc}}">
+          </template> 
+        </view> -->
+      </view>
+    </view>
+    <view class="spacing" wx:if="{{detail.desc}}"></view>
     <view class="block">
-      <view class="block_title">拼货流程</view>
+      <view class="block_title">购买流程</view>
       <view class="block_content">
         <view class="process">
-          新款展示
-          <i class="iconfont icon-next"></i> 拼单结束
-          <i class="iconfont icon-next"></i> 生产商品
-          <i class="iconfont icon-next"></i> 商品检验
-          <i class="iconfont icon-next"></i> 商品发货
+          选择兑换方式
+          <i class="iconfont icon-next"></i> 下单
+          <i class="iconfont icon-next"></i> 支付
+          <i class="iconfont icon-next"></i> 线下兑换 或 邮寄兑换
         </view>
         <view class="doc">
-          如若出现特殊情况外，发货时间则会延迟5-10天左右。
+          商品支付完成后通过选择的兑换方式进行线下兑换或邮寄兑换，详细说明如下。
         </view>
       </view>
-      <view class="block_title">商品评价(20)</view>
-      <view class="block_content">
-        <commentList :list.sync="commentList"></commentList>
-        <view class="button-more-cmment" wx:if="{{commentList.length!==0}}" @tap="moreComment">查看更多评论</view>
-      </view>
     </view>
-    <view class="spacing"></view>
+    <view class="spacing" ></view>
     <view class="block">
-      <view class="block_title">拼单说明</view>
+      <view class="block_title">兑换说明</view>
       <view class="block_content">
         <view class="doc">
           此商品在拼单期间可接收订单，如若超过拼单时间则不能下单；拼单结束后未付款订单系统将会自动取消，所以，亲下单以后请尽快付款。我们会以实际订单为准为您发货，如超过订单时间而又没有拼购到规定数量的，我们将会第一时间为您退款，请您放心购买!
-        </view>
-      </view>
-    </view>
-    <view class="spacing"></view>
-    <view class="block">
-      <view class="block_title">商品信息</view>
-      <view class="block_content">
-        <view class="table">
-          <view class="th" wx:for="{{detail.attrList}}" key="item" item="item" wx:key="key">
-            <view class="tr1" wx:for="{{item}}" key="item" item="item" wx:key="key">{{item.attrName}}:{{item.attrVal}}</view>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view class="spacing"></view>
-    <view class="block">
-      <view class="block_title">商品详情</view>
-    </view>
-    <view class="big_images">
-      <view class="doc">
-        <view class="wxParse-p">
-          <template is="wxParse" data="{{wxParseData:detailInfo.nodes}}">
-          </template>
         </view>
       </view>
     </view>
@@ -101,10 +97,6 @@
         </view>
         <contact-button class="contact">
         </contact-button>
-        <!-- <view class="item {{isFavorite?'selec_active':''}}" @tap="takeFavorite">
-          <i class="iconfont icon-collection"></i>
-          <view class="doc">收藏</view>
-        </view> -->
         <view class="sy-bottom {{canOrder?'btn_cart':'cart_color'}}" @tap="takeCart">加入购物车</view>
         <view class="sy-bottom {{canOrder?'btn_order':'order_color'}}" @tap="takeOrder">{{purchaseText}}</view>
       </view>
@@ -114,30 +106,30 @@
       <view class="model_content">
         <view class="head_box">
           <view class="img_wrap">
-            <image class="goods_img" src="{{detail.logo}}" />
+            <image class="goods_img" src="{{detail.thumLogo}}" />
           </view>
           <view class="product_wrap">
-            <view class="product_name">{{detail.name}}</view>
-            <view class="price">￥ {{detail.price}}</view>
+            <view class="product_name">{{detail.specification}}</view>
+            <view class="price">{{detail.integral}}积分</view>
           </view>
         </view>
-        <scroll-view scroll-y="true" style="height:400rpx">
-          <view class="rule_box" wx:for="{{detail.goodsSkuNameList}}" item="item" wx:key="key" wx:for-index="ex">
-            <view class="title">{{item.skuName}}</view>
+        <!-- <scroll-view scroll-y="true" style="height:400rpx">-->
+          <view class="rule_box" >
+            <view class="title">{{item}}</view>
             <view class="items">
-              <view class="item {{item.current?'active':''}}" wx:for="{{item.skuValList}}" item="item" wx:key="key" @tap.stop="selAttr" data-id="{{item.skuValId}}" data-nameid="{{item.skuNameId}}" data-index="{{ex}}">{{item.skuVal}}</view>
+              <view  wx:for="{{detail.exchangeList}}" class="item {{item == orderExchange?'active':''}}" @tap.stop="selAttr" data-exchange="{{item}}" >{{item}}</view>
             </view>
           </view>
           <view class="num_box">
             <view class="title">数量</view>
-            <view class="stock">库存:{{detail.stockNum}}件</view>
+            <view class="stock" wx:if="detail.stock">剩余:{{detail.stock}}{{detail.unit}}</view>
             <view class="buy-num">
-              <view class="jian-btn {{item.number==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}">-</view>
+              <view class="jian-btn {{orderNum==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}">-</view>
               <input type="number" bindinput="bindOrderNumInput" value="{{orderNum}}" />
-              <view class="jia-btn {{item.number==10? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}">+</view>
+              <view class="jia-btn {{detail.stock != null && orderNum>=detail.stock? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}">+</view>
             </view>
           </view>
-        </scroll-view>
+         <!-- </scroll-view> -->
         <view class="colse_model" @tap="closeModel"><i class="iconfont icon-close"></i></view>
       </view>
       <view class="comfire_btn" @tap.stop="confirmTake">确定</view>
@@ -152,6 +144,7 @@ import {
 } from '@/utils/constant';
 import tip from '@/utils/tip'
 import api from '@/api/api';
+import dzapi from '@/api/dzapi';
 import WxParse from "../plugins/wxParse/wxParse";
 import CommentList from "../components/comment_list"
 import timer from '@/components/common/timer'
@@ -162,7 +155,7 @@ export default class goodsDetail extends wepy.page {
   data = {
     winWidth: 0,
     winHeight: '100%',
-    goodsId: 0,
+    goodsId: '',
     detail: {},
     good_bigimg: [],
     //订单活动开始时间（格式yy-mm-dd 或者 yy/mm/dd ）
@@ -178,37 +171,14 @@ export default class goodsDetail extends wepy.page {
     orderType: 1,
     //购买数量
     orderNum: 1,
+    orderExchange: "",
     //是否收藏
     isFavorite: false,
     isValidDate: true,
     canOrder: true, //是否能下单
     purchasetype: 1, //1-正常购买;2-补货
     purchaseText: "立即购买",
-    special: 0, ////0-正常入库;1-特价专区和换货专区,
-    commentList: [
-
-      {
-        url: "../images/icon_nav_01_new.png",
-        name: "浪子天涯",
-        time: "2017-10-01 10:10",
-        content: "东西收到,很满意!!真的是超级好的卖家,解答疑问不厌其烦,细致认真,关键是东西好,而且货物发得超快,包装仔细,值得信赖!",
-        start: 4.5,
-        children: [{
-          content: "跟你交易次次都这么成功和开心的．．希望我们以后有更多的交易吧．．．哈哈"
-        }]
-      },
-      {
-        url: "../images/icon_nav_02_new.png",
-        name: "勇闯天下",
-        time: "2017-10-01 10:10",
-        content: "太感谢了，衣服很漂亮，朋友很喜欢，最主要的是买家太好了~~~大大的赞一个。。。 衣服，很合身",
-        start: 4,
-        children: []
-      }
-
-
-    ],
-    commentList1: [],
+    special: 0 ////0-正常入库;1-特价专区和换货专区,
   }
 
   components = {
@@ -231,20 +201,20 @@ export default class goodsDetail extends wepy.page {
     if (option.purchasetype != undefined) {
       this.purchasetype = option.purchasetype;
     }
-    if (this.purchasetype == 2) {
+    /*if (this.purchasetype == 2) {
       this.purchaseText = "申请补货";
     } else {
       this.purchaseText = "立即购买";
     }
     if (option.special != undefined) {
       this.special = option.special;
-    }
+    }*/
     that.getGoodsDetail();
     that.addUserBrowser();
     console.log("special===" + this.special);
   }
   onShow() {
-    this.goodsIsFavorite();
+    /*this.goodsIsFavorite();*/
     //创建动画
     var animation = wx.createAnimation({
       transformOrigin: "50% 50%",
@@ -278,16 +248,17 @@ export default class goodsDetail extends wepy.page {
   async getGoodsDetail() {
     let that = this;
     //const json = await api.getGoodsDetail({
-    const json = await api.goodsDetail({
+    //const json = await api.goodsDetail({
+    const json = await dzapi.getGoodsDetail({
       query: {
         id: that.goodsId
       }
     });
     let time = {};
-    if (json.data.code == 0) {
-      let data = json.data.data;
+    if (json.data.success == true) {
+      let data = json.data.result;
       that.detail = data;
-      WxParse.wxParse('detailInfo', 'html', that.detail.detailInfo, this);
+      /*WxParse.wxParse('detailInfo', 'html', that.detail.detailInfo, this);
       time.endTime = that.detail.validEndTime;
       time.startTime = that.detail.startTime;
       if (json.data.validDate == "0") {
@@ -295,16 +266,27 @@ export default class goodsDetail extends wepy.page {
         if (this.purchasetype == 1 && this.special != 1) {
           this.canOrder = false;
         }
+      }*/
+      //that.canOrder = false;
+      //that.purchaseText = '商品已下架';
+      if(that.detail.isAction == false){
+          that.canOrder = false;
+          that.purchaseText = '商品已下架';
       }
+      if(that.detail.stock == 0){
+          that.canOrder = false;
+          that.purchaseText = '商品剩余为0';
+      }
+      that.orderExchange = that.detail.exchangeList[0];
     } else {
-      if (json.data.msg) {
-        tip.error(json.data.msg)
+      if (json.data.error) {
+        tip.error(json.data.error)
       } else {
         tip.error('查看商品失败')
       }
     }
     that.$apply();
-    this.$invoke('timer', 'initTimer', time);
+    //this.$invoke('timer', 'initTimer', time);
   }
   async addUserBrowser() {
     let that = this;
@@ -496,7 +478,7 @@ export default class goodsDetail extends wepy.page {
       let imageArry = [];
       let obj = this.detail.photoList;
       Object.keys(obj).forEach((item) => {
-        imageArry.push(obj[item].photo)
+        imageArry.push(obj[item])
       });
       wx.previewImage({
         current: current, // 当前显示图片的http链接
@@ -504,7 +486,18 @@ export default class goodsDetail extends wepy.page {
       })
     },
     bindOrderNumInput(e) {
-      this.orderNum = e.detail.value;
+      const num = e.detail.value
+      if(!num){
+        this.orderNum = 1;
+      }
+      else if(this.detail.stock != null && num > this.detail.stock){
+        this.orderNum = this.detail.stock;
+        return;
+      }
+      else{
+        this.orderNum = num;
+      }
+      this.$apply();
     },
     takeOrder() {
       if (!this.canOrder) {
@@ -548,42 +541,20 @@ export default class goodsDetail extends wepy.page {
       }
     },
     jiaBtnTap(e) {
-      this.orderNum++;
+      if (this.detail.stock == null || this.orderNum < this.detail.stock){
+        this.orderNum++;
+        this.$apply();
+       }
     },
     jianBtnTap() {
       if (this.orderNum > 1) {
         this.orderNum--;
+         this.$apply();
       }
     },
     selAttr(e) {
-      var id = e.currentTarget.dataset.id;
-      var nameid = e.currentTarget.dataset.nameid;
-      var index = e.currentTarget.dataset.index;
-      for (var i = 0; i < this.detail.goodsSkuNameList.length; i++) {
-        var skuValList = this.detail.goodsSkuNameList[i].skuValList;
-        for (var j = 0; j < skuValList.length; j++) {
-          var skuVal = skuValList[j];
-          if (skuVal.skuNameId == nameid) {
-            skuVal.current = false;
-            if (skuVal.skuValId == id) {
-              skuVal.current = true;
-              this.detail.goodsSkuValIds[index] = id;
-              for (var k = 0; k < this.detail.goodsSkuList.length; k++) {
-                var skuValIds = JSON.parse(this.detail.goodsSkuList[k].skuValIds).toArray;
-                console.log("goodskuids..." + this.detail.goodsSkuList[k].skuValIds);
-                console.log("this goodskuids..." + this.detail.goodsSkuValIds);
-                if ("[" + this.detail.goodsSkuValIds.toString() + "]" === this.detail.goodsSkuList[k].skuValIds) {
-                  console.log("goodskuids equals...");
-                  this.detail.stockNum = this.detail.goodsSkuList[k].stockNum;
-                  this.detail.price = this.detail.goodsSkuList[k].price;
-                  this.$apply();
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
+      this.orderExchange = e.currentTarget.dataset.exchange;
+      this.$apply();
     },
     onShareAppMessage: function(res) {
       if (res.from === 'button') {
@@ -647,18 +618,20 @@ export default class goodsDetail extends wepy.page {
     position: relative;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     .price {
       color: #f73c3c;
-      font-size: 45rpx;
+      font-size: 35rpx;
+      font-weight: 800;
     }
     .other-price {
       font-size: 28rpx;
       padding-left: 40rpx
     }
     .share-box {
-      text-align: center;
+      text-align:right;
       font-size: 20rpx;
-      padding-left: 50rpx;
+      padding-right: 10rpx;
       flex: 1;
     }
     .icon-share {
@@ -695,6 +668,23 @@ export default class goodsDetail extends wepy.page {
     }
   }
 }
+
+ .lable {
+    margin-top: 20rpx;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-left: -20rpx;
+    .child {
+      background: #dedede;
+      padding: 10rpx 20rpx;
+      border-radius: 300rpx;
+      margin-left: 20rpx;
+      font-size: 26rpx;
+      margin-top: 5rpx;
+      color: #000;
+    }
+  }
 
 .block {
   padding: 27rpx 0rpx;

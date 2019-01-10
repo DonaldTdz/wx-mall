@@ -16,12 +16,16 @@ import {
   const getSearchGoods = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetSearchGoodsAsync');
   //商品分类
   const getGroupGoods = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetGroupGoodsAsync');
+
+  //商品明细
+  const getGoodsDetail = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetGoodsDetailAsync');
   
   export default {
     wxJsCode2Session,
     getHeatGoods,
     getGoodsCategories,
     getSearchGoods,
-    getGroupGoods
+    getGroupGoods,
+    getGoodsDetail
   }
   
