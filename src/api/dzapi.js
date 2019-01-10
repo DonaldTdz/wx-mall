@@ -19,6 +19,9 @@ import {
 
   //商品明细
   const getGoodsDetail = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetGoodsDetailAsync');
+
+  //添加到购物车
+  const addCart = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/AddCartAsync');
   
   export default {
     wxJsCode2Session,
@@ -26,6 +29,7 @@ import {
     getGoodsCategories,
     getSearchGoods,
     getGroupGoods,
-    getGoodsDetail
+    getGoodsDetail,
+    addCart
   }
   

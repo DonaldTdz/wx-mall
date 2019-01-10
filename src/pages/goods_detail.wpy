@@ -3,7 +3,7 @@
     <import src="../plugins/wxParse/wxParse.wxml" />
     <!--index.wxml-->
     <swiper indicator-dots="true" autoplay="true" interval="5000" duration="500" indicator-active-color="#ffc452" indicator-color="#efefef" class="swiper">
-      <block wx:for="{{detail.photoList}}" key="item" item="item" wx:key="key">
+      <block wx:for="{{detail.photoList}}" wx:key="{{item}}" item="item">
         <swiper-item>
           <image src="{{item}}" data-src="{{item}}" class="slide-image" @tap="previewImage" />
         </swiper-item>
@@ -28,7 +28,7 @@
           <view>
               <view class="child">{{detail.categoryName}}</view>
             </view>
-            <view wx:for="{{detail.exchangeList}}">
+            <view wx:for="{{detail.exchangeList}}" wx:key="{{item}}">
               <view class="child">{{item}}</view>
             </view>
           </view>
@@ -117,7 +117,7 @@
           <view class="rule_box" >
             <view class="title">{{item}}</view>
             <view class="items">
-              <view  wx:for="{{detail.exchangeList}}" class="item {{item == orderExchange?'active':''}}" @tap.stop="selAttr" data-exchange="{{item}}" >{{item}}</view>
+              <view  wx:for="{{detail.exchangeList}}" wx:key="{{item}}" class="item {{item == orderExchange?'active':''}}" @tap.stop="selAttr" data-exchange="{{item}}" >{{item}}</view>
             </view>
           </view>
           <view class="num_box">
@@ -306,16 +306,16 @@ export default class goodsDetail extends wepy.page {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     let openId = userSpecialInfo.openid;
-    const json = await api.addCart({
+    const json = await dzapi.addCart({
       query: {
-        openId: openId,
+        wxOpenId: openId,
         goodsId: that.goodsId,
-        goodsSkuId: this.detail.goodsSkuValIds,
-        purchaseType: this.purchasetype,
-        num: this.orderNum
-      }
+        exchangeCode: that.orderExchange,
+        num: that.orderNum
+      },
+      method: 'POST'
     });
-    if (json.data.code == 0) {
+    if (json.data.success == true) {
       this.winHeight = "100%";
       this.animation.height(0).step();
       this.setData({
@@ -327,8 +327,8 @@ export default class goodsDetail extends wepy.page {
       }, 100)
       tip.success("成功加入购物车");
     } else {
-      if (json.data.msg) {
-        tip.error(json.data.msg)
+      if (json.data.error) {
+        tip.error(json.data.error.msg)
       } else {
         tip.error('无法加入购物车')
       }
@@ -362,8 +362,8 @@ export default class goodsDetail extends wepy.page {
         url: "/pages/comfire_order?goodsId=" + that.goodsId + "&purchasetype=" + that.purchasetype
       })
     } else {
-      if (json.data.msg) {
-        tip.error(json.data.msg)
+      if (json.data.error) {
+        tip.error(json.data.error.msg)
       } else {
         tip.error('无法立刻购买')
       }
