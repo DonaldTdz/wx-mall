@@ -44,7 +44,7 @@ export default class Authorize extends wepy.page {
           if (rlt.data.success) {
             let data = rlt.data.result;
             if (data.openid) {
-              wepy.setStorageSync(USER_SPECICAL_INFO, data.data);
+              wepy.setStorageSync(USER_SPECICAL_INFO, data);
             }
           }
         }
@@ -70,8 +70,10 @@ export default class Authorize extends wepy.page {
         console.log(rlt.data);
         if (rlt.data.success) {
           let data = rlt.data.result;
+          //console.log(JSON.stringify(data));
+          
           if (data.openid) {
-            wepy.setStorageSync(USER_SPECICAL_INFO, data.data);
+            wepy.setStorageSync(USER_SPECICAL_INFO, data);
             wepy.switchTab({
               url: '/pages/home'
             })

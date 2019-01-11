@@ -12,19 +12,21 @@
             <view class="text-box">
               <view class="goods-title">
                 <navigator url="/pages/goods_detail?id={{item.goodsId}}">
-                  {{item.goodsName}}
+                  {{item.specification}}
                 </navigator>
               </view>
               <!--  -->
               <view class="lable">
-                <view class="goods-lable">{{item.goodsSkuValName}}</view>
-                <view class="bo-label" wx:if="{{item.type==2}}">补货</view>
+                <view class="goods-lable">["{{item.categoryName}}","{{item.exchangeCodeDesc}}"]</view>
+                <view class="goods-lable" wx:if="{{item.isAction && item.stock !== null && item.stock > 0}}" >库存{{item.stock}}{{item.unit}}</view>
+                <view class="bo-label" wx:if="{{!item.isAction}}">已下架</view>
+                <view class="bo-label" wx:if="{{item.stock === 0}}">已售完</view>
               </view>
-              <view class="goods-price">¥ {{item.price}}</view>
+              <view class="goods-price">{{item.integral}} 积分</view>
               <view class="buy-num">
                 <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
                 <input type="number" value="{{item.num}}" disabled/>
-                <view class="jia-btn {{item.num==1000? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
+                <view class="jia-btn {{(item.stock != null && item.num>=item.stock) || item.num==1000? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
               </view>
             </view>
           </view>
@@ -48,7 +50,7 @@
         <icon type="success" size="20" color="{{allChecked?'red':'rgb(153,153,153)'}}" />
         <view class="all_select">全选</view>
       </view>
-      <view class="total" hidden="{{noSelect}}">合计：¥ {{totalPrice}}</view>
+      <view class="total" hidden="{{noSelect}}">合计：{{totalPrice}} 积分</view>
     </view>
     <view class="to-pay-btn {{noSelect?'no-select':''}}" hidden="{{!saveHidden}}" bindtap="toPayOrder">去结算</view>
   </view>
@@ -57,6 +59,7 @@
 <script>
   import wepy from 'wepy';
   import api from '@/api/api';
+  import dzapi from '@/api/dzapi';
   import tip from '@/utils/tip';
   import {
     USER_SPECICAL_INFO
@@ -79,14 +82,16 @@
       let that = this;
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
-      const json = await api.cartList({
+      const json = await dzapi.getUserCartList({
         query: {
-          openId: openId
+          //wxopenid: openId
         }
       });
-      if (json.data.code == 0) {
-        let data = json.data;
-        this.list = data.list;
+      if (json.data.success == true) {
+        let data = json.data.result;
+        console.log(JSON.stringify(data));
+        
+        this.list = data.items;
         this.totalPrice = data.totalPrice;
         for (var i = 0; i < this.list.length; i++) {
           if (!this.list[i].ischecked) {
@@ -95,7 +100,9 @@
           }
         }
       } else {
-        tip.error(json.data.msg)
+        if(json.data.error){
+            tip.error(json.data.error.msg);
+        }
       }
       that.$apply();
     }
@@ -108,26 +115,42 @@
     }
     computed = {}
     async checkGoods(id, index, ischecked) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.cartCheck({
-        query: {
-          openId: openId,
-          id: id
-        }
-      });
-      if (json.data.code == 0) {
-        // 购物车数据
-        this.list[index].ischecked = !ischecked;
-        if (this.list[index].ischecked) {
-          this.totalPrice += parseInt(this.list[index].priceSubtotal);
-        } else {
-          this.totalPrice -= parseInt(this.list[index].priceSubtotal);
-        }
-      } else {
-        tip.error(json.data.msg)
-      }
-      this.$apply();
+      if(this.list[index].isAction == true && this.list[index].stock !== 0) {
+          //let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+          //let openId = userSpecialInfo.openid;
+          const json = await dzapi.getCheckCartGoods({
+            query: {
+              id: id
+            }
+          });
+          if (json.data.success == true) {
+            const newGoods = json.data.result//获取最新的数据状态
+            this.list[index].isAction = newGoods.isAction;//是否下架
+            this.list[index].stock = newGoods.stock; //库存
+            if(this.list[index].isAction == true && this.list[index].stock !== 0){
+              // 购物车数据
+              this.list[index].ischecked = !ischecked;
+              if (this.list[index].ischecked) {//启用
+                if(this.list[index].num > this.list[index].stock){//如果大于库存
+                  this.list[index].num = this.list[index].stock; 
+                  this.list[index].priceSubtotal = parseInt(this.list[index].num*this.list[index].integral);
+                }
+                this.totalPrice += parseInt(this.list[index].priceSubtotal);
+              } else {
+                this.totalPrice -= parseInt(this.list[index].priceSubtotal);
+              }
+            }
+            else {
+              this.list[index].ischecked = false;
+              if(ischecked !== this.list[index].ischecked){
+                this.totalPrice -= parseInt(this.list[index].priceSubtotal);
+              }
+            }
+          } else {
+            tip.error(json.data.error.msg)
+          }
+          this.$apply();
+      } 
     }
     async reduceGoodNum(id, num, index) {
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};

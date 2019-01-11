@@ -305,6 +305,8 @@ export default class goodsDetail extends wepy.page {
   async doTakeCart() {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    //console.log('user:' + JSON.stringify(userSpecialInfo));
+    
     let openId = userSpecialInfo.openid;
     const json = await dzapi.addCart({
       query: {

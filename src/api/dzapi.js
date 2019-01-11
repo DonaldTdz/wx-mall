@@ -22,6 +22,12 @@ import {
 
   //添加到购物车
   const addCart = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/AddCartAsync');
+
+  //用户购物车列表
+  const getUserCartList = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/GetUserCartListAsync');
+
+  //检查购物车
+  const getCheckCartGoods = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/GetCheckCartGoodsAsync');
   
   export default {
     wxJsCode2Session,
@@ -30,6 +36,8 @@ import {
     getSearchGoods,
     getGroupGoods,
     getGoodsDetail,
-    addCart
+    addCart,
+    getUserCartList,
+    getCheckCartGoods
   }
   
