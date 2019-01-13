@@ -28,6 +28,8 @@ import {
 
   //检查购物车
   const getCheckCartGoods = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/GetCheckCartGoodsAsync');
+
+  const userShopCartDelete = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/UserShopCartDeleteAsync'); 
   
   export default {
     wxJsCode2Session,
@@ -38,6 +40,7 @@ import {
     getGoodsDetail,
     addCart,
     getUserCartList,
-    getCheckCartGoods
+    getCheckCartGoods,
+    userShopCartDelete
   }
   

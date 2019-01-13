@@ -24,9 +24,9 @@
               </view>
               <view class="goods-price">{{item.integral}} 积分</view>
               <view class="buy-num">
-                <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
+                <view class="jian-btn {{item.num==1 || !item.ischecked? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
                 <input type="number" value="{{item.num}}" disabled/>
-                <view class="jia-btn {{(item.stock != null && item.num>=item.stock) || item.num==1000? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
+                <view class="jia-btn {{(item.stock != null && item.num>=item.stock) || !item.ischecked? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
               </view>
             </view>
           </view>
@@ -128,6 +128,9 @@
             this.list[index].isAction = newGoods.isAction;//是否下架
             this.list[index].stock = newGoods.stock; //库存
             if(this.list[index].isAction == true && this.list[index].stock !== 0){
+              if(ischecked){
+                this.allChecked = false;
+              }
               // 购物车数据
               this.list[index].ischecked = !ischecked;
               if (this.list[index].ischecked) {//启用
@@ -145,6 +148,7 @@
               if(ischecked !== this.list[index].ischecked){
                 this.totalPrice -= parseInt(this.list[index].priceSubtotal);
               }
+              this.allChecked = false;
             }
           } else {
             tip.error(json.data.error.msg)
@@ -153,7 +157,7 @@
       } 
     }
     async reduceGoodNum(id, num, index) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      /*let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
       const json = await api.cartUpdateNum({
         query: {
@@ -162,18 +166,19 @@
           num: num
         }
       });
-      if (json.data.code == 0) {
+      if (json.data.code == 0) {*/
         // 购物车数据
         this.list[index].num = num;
-        this.totalPrice = this.totalPrice - this.list[index].price;
+        this.list[index].priceSubtotal = parseInt(num) * parseInt(this.list[index].integral);
+        this.totalPrice = parseInt(this.totalPrice) - parseInt(this.list[index].integral);
         this.operating = false;
-      } else {
+      /*} else {
         tip.error(json.data.msg)
-      }
+      }*/
       this.$apply();
     }
     async addGoodNum(id, num, index) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      /*let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
       const json = await api.cartUpdateNum({
         query: {
@@ -182,27 +187,29 @@
           num: num
         }
       });
-      if (json.data.code == 0) {
+      if (json.data.code == 0) {*/
         // 购物车数据
         this.list[index].num = num;
-        this.totalPrice = parseInt(this.totalPrice) + parseInt(this.list[index].price);
+        this.list[index].priceSubtotal = parseInt(num) * parseInt(this.list[index].integral);
+        this.totalPrice = parseInt(this.totalPrice) + parseInt(this.list[index].integral);
         this.operating = false;
-      } else {
+      /*} else {
         tip.error(json.data.msg)
-      }
+      }*/
       this.$apply();
     }
     async deleteGoods(itemData) {
       var id = itemData.id;
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
-      const json = await api.cartDel({
+      const json = await dzapi.userShopCartDelete({
         query: {
-          openId: openId,
-          cartIdList: [id],
-        }
+          wxOpenId: openId,
+          shopCartId: id
+        },
+        method: 'POST'
       });
-      if (json.data.code == 0) {
+      if (json.data.success == true) {
         // 购物车数据
         let retList = [];
         for (var i = 0; i < this.list.length; i++) {
@@ -217,13 +224,13 @@
         }
         this.list = retList;
       } else {
-        tip.error(json.data.msg)
+        tip.error(json.data.error.msg)
       }
       this.$apply();
     }
 
     async checkAllGoods() {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      /*let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
       let check = 0;
       if (!this.allChecked) {//原来未选中
@@ -235,22 +242,37 @@
           check: check
         }
       });
-      if (json.data.code == 0) {
+      if (json.data.code == 0) {*/
         this.totalPrice = 0;
         for (var i = 0; i < this.list.length; i++) {
-          this.list[i].ischecked = !this.allChecked;
-          if (!this.allChecked) {
-            this.totalPrice += parseInt(this.list[i].priceSubtotal);
-          }
+           //如果库存为0 或 已下架
+           if((this.list[i].stock != null && this.list[i].stock == 0) || !this.list[i].isAction){
+              break;
+            }
+            else{
+              this.list[i].ischecked = !this.allChecked;
+              if (!this.allChecked) {
+                this.totalPrice += parseInt(this.list[i].priceSubtotal);
+              }
+            } 
         }
         this.allChecked = !this.allChecked;
-      } else {
+      /*} else {
         tip.error(json.data.msg)
-      }
+      }*/
       this.$apply();
     }
 
-
+    watch = {
+        totalPrice (newValue, oldValue) {
+            if(newValue <= 0){
+              this.noSelect = true;
+            } else{
+              this.noSelect = false;
+            }
+            this.$apply();
+        }
+    }
     methods = {
       handleDelItem(itemData) {
         this.deleteGoods(itemData);
@@ -272,31 +294,47 @@
         if (this.operating) {
           return;
         }
-        this.operating = true;
+        //this.operating = true;
         var id = e.currentTarget.dataset.id;
         var index = parseInt(e.currentTarget.dataset.index);
         var num = this.list[index].num;
-        // 如果只有1件了，就不允许再减了
-        if (num > 1) {
+        // 如果只有1件了 和 没有选中，就不允许再减了
+        if(num == 1 || !this.list[index].ischecked) {
+          return;
+        } else {
           num--;
+        }
+         this.operating = true;
+        /*if (num > 1) {
+         num--;
         } else {
           return;
-        }
+        }*/
         this.reduceGoodNum(id, num, index);
       },
       jiaBtnTap(e) {
         if (this.operating) {
           return;
         }
-        this.operating = true;
+        //this.operating = true;
         var id = e.currentTarget.dataset.id;
         var index = parseInt(e.currentTarget.dataset.index);
         var num = this.list[index].num;
+        console.log('index:' + index);
+        console.log('this.list[index]:'+ JSON.stringify(this.list[index]));
+        //超过库存限制 和 没选中就不用加了
+        if((this.list[index].stock != null && num>=this.list[index].stock) || !this.list[index].ischecked){
+          return;
+        }
+        this.operating = true;
         // 自增
         num++;
         this.addGoodNum(id, num, index);
       },
       toPayOrder() {
+        if(this.noSelect){
+          return;
+        }
         let purType = 1,
           prePurType = 1;
         let bOneType = true;
