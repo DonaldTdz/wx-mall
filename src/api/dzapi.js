@@ -30,6 +30,12 @@ import {
   const getCheckCartGoods = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/GetCheckCartGoodsAsync');
 
   const userShopCartDelete = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/UserShopCartDeleteAsync'); 
+
+  //购物车去结算
+  const payOrderConfirm = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/PayOrderConfirmAsync');
+
+  //获取结算明细
+  const getPayOrder = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/GetPayOrderAsync');
   
   export default {
     wxJsCode2Session,
@@ -41,6 +47,8 @@ import {
     addCart,
     getUserCartList,
     getCheckCartGoods,
-    userShopCartDelete
+    userShopCartDelete,
+    payOrderConfirm,
+    getPayOrder
   }
   

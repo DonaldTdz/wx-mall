@@ -84,7 +84,7 @@
       let openId = userSpecialInfo.openid;
       const json = await dzapi.getUserCartList({
         query: {
-          //wxopenid: openId
+          wxopenid: openId
         }
       });
       if (json.data.success == true) {
@@ -331,34 +331,33 @@
         num++;
         this.addGoodNum(id, num, index);
       },
-      toPayOrder() {
+      async toPayOrder() {
         if(this.noSelect){
           return;
         }
-        let purType = 1,
-          prePurType = 1;
-        let bOneType = true;
-        let index = 0;
+        let purType = 1, prePurType = 1;
+        let selects = [];
         for (var i = 0; i < this.list.length; i++) {
           if (this.list[i].ischecked) {
-            purType = this.list[i].type;
-            if (index > 0) {
-              if (purType != prePurType) {
-                bOneType = false;
-                break;
-              }
-            }
-            prePurType = purType;
-            index++;
+            selects.push({id: this.list[i].id, num: this.list[i].num});
           }
         }
-        if (!bOneType) {
-          tip.alert("先把补货的商品结算!");
-          return;
+        let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+        let openId = userSpecialInfo.openid;
+        const json = await dzapi.payOrderConfirm({
+          query: {
+            wxOpenId: openId,
+            items: selects
+          },
+          method: 'POST'
+        });
+        if (json.data.success == true) {
+          wepy.navigateTo({
+            url: "/pages/comfire_order?purchasetype=" + purType
+          });
+        } else {
+          tip.error(json.data.error.msg);
         }
-        wepy.navigateTo({
-          url: "/pages/comfire_order?purchasetype=" + purType
-        })
       },
       goIndex() {
         wepy.switchTab({
