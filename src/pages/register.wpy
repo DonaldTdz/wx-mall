@@ -3,129 +3,160 @@
   <form bindsubmit="formSubmit">
     <view class="section">
       <view class="section_title">手机号</view>
-      <input name="phone" type="number" bindinput="phoneInput" placeholder="请输入手机号码" maxlength="11" focus="true" />
+      <input
+        value="{{phone}};"
+        name="phone"
+        type="number"
+        bindinput="phoneInput"
+        placeholder="请输入手机号码"
+        maxlength="11"
+        focus="true"
+      >
     </view>
-    <view class="section">
+    <!-- <view class="section">
       <view class="section_title">验证码</view>
       <input class="code" name="code" type="number" placeholder="请输入验证码" />
       <view class="btn send_code">
         <text wx:if="{{sendMsgDisabled}}">{{time+'秒后获取'}}</text>
         <text @tap="sendCode" wx:else="{{sendMsgDisabled}}">发送验证码</text>
       </view>
-    </view>
+    </view>-->
+
     <view class="btn_comfire">
       <button class="button type_yellow" formType="submit">完成</button>
     </view>
   </form>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '@/api/api';
-import tip from '@/utils/tip'
-import {
-  USER_SPECICAL_INFO
-} from '@/utils/constant';
-
+import wepy from "wepy";
+import api from "@/api/api";
+import dzapi from "@/api/dzapi";
+import tip from "@/utils/tip";
+import { USER_SPECICAL_INFO } from "@/utils/constant";
 
 export default class Register extends wepy.page {
   config = {
-    navigationBarTitleText: '绑定手机',
-  }
-  components = {}
+    navigationBarTitleText: "绑定手机"
+  };
+  components = {};
 
   data = {
-    phone : "",
-    sendMsgDisabled: false,
-    time: 60
-  }
+    phone: ""
+    // sendMsgDisabled: false,
+    // time: 60
+  };
 
-  async sendVerifyCode() {
-    const json = await api.sendRandCode({
+  // async sendVerifyCode() {
+  //   const json = await api.sendRandCode({
+  //     query: {
+  //       phone: this.phone
+  //     }
+  //   });
+  //   if (json.data.code == 0) {
+  //     tip.success("发送成功!");
+  //     that.$apply();
+  //   } else {
+  //     tip.error(json.data.msg);
+  //   }
+  // }
+
+  async getUserPhone() {
+    let that = this;
+    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    let openId = userSpecialInfo.openid;
+    const json = await dzapi.getUserPhone({
       query: {
-        phone: this.phone
+        WxOpenId: openId
       }
     });
-    if (json.data.code == 0) {
-      tip.success("发送成功!");
+
+    if (json.data.success == true) {
+      this.phone = json.data.result;
       that.$apply();
     } else {
-      tip.error(json.data.msg)
+      tip.error(json.data.msg);
     }
+    that.showLoading = false;
   }
 
-  async registerUser(phone,code) {
-        let that = this;
-        let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-        let openId = userSpecialInfo.openid;
-        const json = await api.registerUser({
-          query: {
-            openId: openId,
-            mobile:phone,
-            verificationCode:code
-          }
-        });
+  async registerUser(phone) {
+    let that = this;
+    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    let openId = userSpecialInfo.openid;
+    const json = await dzapi.registerUser({
+      query: {
+        WxOpenId: openId,
+        Phone: phone
+        // verificationCode: code
+      },
+      method: "POST"
+    });
 
-        if (json.data.code == 0) {
-          // that.list = json.data.list;
-          wepy.navigateBack();
-          console.log("绑定成功.....");
+    if (json.data.success == true) {
+      // that.list = json.data.list;
+      // tip.alert("注册成功");
+      wepy.navigateBack();
+      // console.log("绑定成功.....");
 
-          that.$apply();
-        } else {
-          tip.error(json.data.msg)
-        }
-        that.showLoading = false;
-      }
-
+      that.$apply();
+    } else {
+      tip.error(json.data.msg);
+    }
+    that.showLoading = false;
+  }
 
   onLoad() {
     let that = this;
-
-
+    this.getUserPhone();
   }
-  computed = {
-
-  }
+  computed = {};
   methods = {
     phoneInput(e) {
       this.phone = e.detail.value;
     },
-    sendCode(e) {
-      if (this.phone == "") {
-        tip.alert("输入手机号码");
-        return false;
-      }
-      this.sendVerifyCode();
-      let that = this;
-      that.sendMsgDisabled = true;
-      let interval = setInterval(() => {
-        if ((that.time--) <= 0) {
-          that.time = 10;
-          that.sendMsgDisabled = false;
-          clearInterval(interval);
-          that.$apply();
-        }
-        that.$apply();
-      }, 1000);
-    },
+    // sendCode(e) {
+    //   if (this.phone == "") {
+    //     tip.alert("输入手机号码");
+    //     return false;
+    //   }
+    //   // this.sendVerifyCode();
+    //   let that = this;
+    //   that.sendMsgDisabled = true;
+    //   let interval = setInterval(() => {
+    //     if (that.time-- <= 0) {
+    //       that.time = 10;
+    //       that.sendMsgDisabled = false;
+    //       clearInterval(interval);
+    //       that.$apply();
+    //     }
+    //     that.$apply();
+    //   }, 1000);
+    // },
     formSubmit(e) {
       let that = this;
       let phone = e.detail.value.phone;
-      let code = e.detail.value.code;
+      var myreg = /^\+?[1-9][0-9]*$/;
+      // let code = e.detail.value.code;
       if (phone == "") {
-        tip.alert("输入手机号码");
+        tip.alert("请输入手机号码");
+        return false;
+      } else if (phone.length != 11) {
+        tip.alert("格式不正确");
+        return false;
+      } else if (!myreg.test(phone)) {
+        tip.alert("格式不正确");
         return false;
       }
-      if (code == "") {
-        tip.alert("输入验证码");
-        return false;
-      }
-      that.registerUser(phone,code);
-      console.log('form发生了submit事件，携带数据为：', e.detail.value)
-    }
-  }
-}
 
+      // if (code == "") {
+      //   tip.alert("输入验证码");
+      //   return false;
+      // }
+      that.registerUser(phone);
+      // console.log("form发生了submit事件，携带数据为：", e.detail.value);
+    }
+  };
+}
 </script>
 <style lang="less">
 .section {
@@ -162,5 +193,4 @@ export default class Register extends wepy.page {
 .code {
   width: 300rpx;
 }
-
 </style>

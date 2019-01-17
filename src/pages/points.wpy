@@ -1,14 +1,15 @@
 <template>
   <view class="points">
-    <image src="../images/bc_qdyl.png" class="head_bc"></image>
+    <image src="../images/bc_qdyl.png" class="head_bc">
     <view class="jf_content">
       <view class="jf_header">
         <view class="image_box">
-          <image class="avatarUrl" src="{{avatarUrl}}"></image>
+          <image class="avatarUrl" src="{{avatarUrl}}">
         </view>
         <view class="jf_num cfff">
-          <view class='jf_title'>我的积分</view>
-          <view class='jf_title mt25'><i class="iconfont icon-jifen"></i>
+          <view class="jf_title">我的积分</view>
+          <view class="jf_title mt25">
+            <i class="iconfont icon-jifen"></i>
             <view class="cfff">{{userPoint}}</view>
           </view>
         </view>
@@ -17,7 +18,7 @@
     </view>
     <view class="jf_detai">
       <view class="left">积分明细</view>
-      <view class="right" @tap="more">查看更多</view>
+      <!-- <view class="right" @tap="more">查看更多</view> -->
     </view>
     <scroll-view scroll-y="true" class="swiper-item-box" style="height:{{winHeight-165}}px">
       <!-- 积分记录 -->
@@ -26,21 +27,18 @@
   </view>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '@/api/api';
-import {
-  SYSTEM_INFO,
-  USER_SPECICAL_INFO,
-  USER_INFO
-} from '@/utils/constant';
-import PointsDetail from '@/components/points_detail'
+import wepy from "wepy";
+import api from "@/api/api";
+import dzapi from "@/api/dzapi";
+import { SYSTEM_INFO, USER_SPECICAL_INFO, USER_INFO } from "@/utils/constant";
+import PointsDetail from "@/components/points_detail";
 export default class Points extends wepy.page {
   config = {
-    navigationBarTitleText: '我的积分',
-  }
+    navigationBarTitleText: "我的积分"
+  };
   components = {
     pointsDetail: PointsDetail
-  }
+  };
 
   data = {
     winHeight: 0,
@@ -48,34 +46,105 @@ export default class Points extends wepy.page {
     is_empty: false,
     avatarUrl: "",
     nickName: "",
-    userPoint: 0
+    userPoint: 0,
+    //当前页面
+    currentPage: 1,
+    //总页数
+    page_total: 0,
+    //是否显示 底部loading
+    showLoading: true,
+    //防止重复加载
+    preventRepeatReuqest: false
+  };
+
+  async getUserIntegralTotal(){
+    let that = this;
+    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    let openId = userSpecialInfo.openid;
+    
+    const json = await dzapi.getUserIntegralTotal({
+      query: {
+        Id: openId
+      },
+    });
+    if (json.data.success == true) {
+      that.userPoint = json.data.result;
+      that.$apply();
+    } else {
+      tip.error(json.data.msg);
+    }
+    that.showLoading = false;
   }
-  async getUserPoint() {
-      let that = this;
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.pointInfo({
-        query: {
-          openId: openId,
-          page:"1",
-          size:"10"
-        }
-      });
-      if (json.data.code == 0) {
-        that.list = json.data.list;
-        this.userPoint = json.data.userPoint;
-        that.$apply();
-      } else {
-        tip.error(json.data.msg)
+
+  async getAllIntegralDetail(currentPage, size) {
+    let that = this;
+    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    let openId = userSpecialInfo.openid;
+    const json = await dzapi.getIntegralAllList({
+      query: {
+        WxOpenId: openId,
+        Page: currentPage || 1,
+        Size: size || 10
       }
+    });
+    if (json.data.success == true) {
+      that.list = [...that.list, ...json.data.result.items];
+      that.page_total = json.data.result.pageTotal;
+      if (json.data.result.pageTotal == 0) {
+        //暂无数据
+        that.is_empty = true;
+      }
+    } else {
+      tip.error(json.data.error);
+    }
+    that.showLoading = false;
+    that.$apply();
+  }
+  //加载更多
+  onReachBottom() {
+    let that = this;
+    that.showLoading = true;
+    // console.log(that.page_total + "===" + that.currentPage);
+    //判断总页数是否大于翻页数
+    if (that.page_total > that.currentPage) {
+      //防止重复加载
+      if (that.preventRepeatReuqest) {
+        return true;
+      }
+      that.preventRepeatReuqest = true;
+      that.currentPage++;
+      that.getAllIntegralDetail(that.currentPage);
+      that.preventRepeatReuqest = false;
+    } else {
       that.showLoading = false;
     }
+  }
+  // async getUserPoint() {
+  //     let that = this;
+  //     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+  //     let openId = userSpecialInfo.openid;
+  //     const json = await api.pointInfo({
+  //       query: {
+  //         openId: openId,
+  //         page:"1",
+  //         size:"10"
+  //       }
+  //     });
+  //     if (json.data.code == 0) {
+  //       that.list = json.data.list;
+  //       this.userPoint = json.data.userPoint;
+  //       that.$apply();
+  //     } else {
+  //       tip.error(json.data.msg)
+  //     }
+  //     that.showLoading = false;
+  //   }
   events = {
     // 'index-broadcast': (...args) => {
     //   let $event = args[args.length - 1]
     //   console.log(`${this.$name} receive ${$event.name} from ${$event.source.name}`)
     // }
-  }
+  };
 
   onLoad() {
     let that = this;
@@ -84,30 +153,26 @@ export default class Points extends wepy.page {
     that.avatarUrl = userInfo.avatarUrl;
     that.nickName = userInfo.nickName;
     that.winHeight = systemInfo.windowHeight;
-    console.log("winHeight===",that.winHeight);
-    that.getUserPoint();
+    // console.log("winHeight===", that.winHeight);
+    that.getAllIntegralDetail();
+    that.getUserIntegralTotal();
     that.$apply();
   }
-  computed = {
-
-  }
+  computed = {};
   methods = {
     more() {
       wepy.navigateTo({
-        url: '/pages/points_more'
-      })
+        url: "/pages/points_more"
+      });
     },
     jfRule() {
       wepy.navigateTo({
-        url: '/pages/points_rule'
-      })
+        url: "/pages/points_rule"
+      });
     }
-  }
-  events = {
-
-  }
+  };
+  events = {};
 }
-
 </script>
 <style lang="less">
 .points {
@@ -186,7 +251,7 @@ export default class Points extends wepy.page {
   background: #fff;
   padding: 0rpx 52rpx;
   .left {
-    color: #eb6623
+    color: #eb6623;
   }
   .right {
     color: #a3a3a3;
@@ -195,5 +260,4 @@ export default class Points extends wepy.page {
     margin: 30rpx 0rpx;
   }
 }
-
 </style>

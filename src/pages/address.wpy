@@ -7,47 +7,46 @@
     <addressAdd @currentPage.user="getCurrentPage"></addressAdd>
   </view>
   <view class="{{currentPage==2?'':'hidden'}}">
-    <addressEdit @currentPage.user="getCurrentPage" ></addressEdit>
+    <addressEdit @currentPage.user="getCurrentPage"></addressEdit>
   </view>
 </template>
 <script>
-import wepy from 'wepy';
+import wepy from "wepy";
 import AddressList from "../components/address_list";
 import AddressAdd from "../components/address_add";
 import AddressEdit from "../components/address_edit";
 import api from "../api/api";
-import tip from '@/utils/tip';
-import {
-  USER_SPECICAL_INFO
-} from '@/utils/constant';
+import dzapi from "@/api/dzapi";
+import tip from "@/utils/tip";
+import { USER_SPECICAL_INFO } from "@/utils/constant";
 export default class Address extends wepy.page {
   config = {
-    navigationBarTitleText: '地址管理',
-  }
+    navigationBarTitleText: "地址管理"
+  };
   data = {
     addressList: [],
-    receiverInfo:{},
+    receiverInfo: {},
 
     //显示当前组件 0 列表 1新增 2编辑
     currentPage: 0,
     type: "" //哪个页面跳转过来的
-  }
+  };
 
-  async getUserAddress(phone,code) {
+  async getUserAddress(phone, code) {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     let openId = userSpecialInfo.openid;
-    const json = await api.getUserAddress({
+    const json = await dzapi.getUserAddress({
       query: {
-        openId: openId
+        Id: openId
       }
     });
 
-    if (json.data.code == 0) {
-      this.addressList=json.data.list;
-      this.$invoke("addressList","refreshList", this.addressList);
+    if (json.data.success == true) {
+      this.addressList = json.data.result;
+      this.$invoke("addressList", "refreshList", this.addressList);
     } else {
-      tip.error(json.data.msg)
+      tip.error(json.data.msg);
     }
     that.showLoading = false;
   }
@@ -55,17 +54,17 @@ export default class Address extends wepy.page {
   async receiverInf(id) {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.receiverInfoById({
+    const json = await dzapi.receiverInfoById({
       query: {
-        id: id
+        Id: id
       }
     });
-    if (json.data.code == 0) {
-      this.receiverInfo=json.data.receiverInfo;
-      this.$invoke("addressEdit","refresh", this.receiverInfo);
-      console.log("=================================")
+    if (json.data.success == true) {
+      this.receiverInfo = json.data.result;
+
+      this.$invoke("addressEdit", "refresh", this.receiverInfo);
     } else {
-      tip.error(json.data.msg)
+      tip.error(json.data.msg);
     }
     that.showLoading = false;
   }
@@ -74,49 +73,45 @@ export default class Address extends wepy.page {
     addressList: AddressList,
     addressAdd: AddressAdd,
     addressEdit: AddressEdit
-  }
+  };
 
   onLoad(option) {
     this.currentPage = 0;
     this.getUserAddress();
-    this.type = (option.type==undefined?"":option.type);
-    this.$invoke("addressList","setOrgType", this.type);
+    this.type = option.type == undefined ? "" : option.type;
+    this.$invoke("addressList", "setOrgType", this.type);
   }
 
-  onShow(){
+  onShow() {
     let that = this;
     this.getUserAddress();
   }
-  computed = {
-
-  }
+  computed = {};
   methods = {
-    getCurrentPage(cur,id) {
+    getCurrentPage(cur, id) {
       this.currentPage = cur;
-      if (cur!=1&&cur!=0) {
+      if (cur != 1 && cur != 0) {
         this.receiverInf(id);
       }
     }
-  }
+  };
   onUnload() {
     // if (this.currentPage !== 0) {
-    //   wx.navigateTo({
-    //     url: "/pages/address"
-    //   })
+    // wx.navigateTo({
+    //   url: "/pages/address"
+    // });
     // }
   }
   events = {
-      refreshAddList(msg){
-          this.getUserAddress();
-      }
-  }
-
+    refreshAddList(msg) {
+      // console.log(msg);
+      this.getUserAddress();
+    }
+  };
 }
-
 </script>
 <style lang="less">
 .hidden {
   display: none;
 }
-
 </style>
