@@ -335,7 +335,7 @@
         if(this.noSelect){
           return;
         }
-        let purType = 1, prePurType = 1;
+        let purType = 1;
         let selects = [];
         for (var i = 0; i < this.list.length; i++) {
           if (this.list[i].ischecked) {

@@ -37,6 +37,9 @@ import {
   //获取结算明细
   const getPayOrder = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/GetPayOrderAsync');
   
+  //支付订单
+  const saveOrder = (params) => wxRequest(params, apiMall + '/api/services/app/Order/SaveOrderAsync');
+  
   export default {
     wxJsCode2Session,
     getHeatGoods,
@@ -49,6 +52,7 @@ import {
     getCheckCartGoods,
     userShopCartDelete,
     payOrderConfirm,
-    getPayOrder
+    getPayOrder,
+    saveOrder
   }
   

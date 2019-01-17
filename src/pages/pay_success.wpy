@@ -5,18 +5,11 @@
       <view><i class="iconfont icon-success"></i></view>
       <view class="success_doc">恭喜支付成功</view>
     </view>
-    <view class="pay_type">
-      <view class="block">
-        <i class="iconfont icon-paytype"></i>
-        <view class="title fz24">支付方式</view>
-        <view class="type fz24">微信支付</view>
-      </view>
-    </view>
     <view class="pay_money">
       <view class="block">
         <i class="iconfont icon-money"></i>
-        <view class="title fz24">支付金额</view>
-        <view class="type fz24">{{totalFee}}</view>
+        <view class="title fz24">支付积分</view>
+        <view class="type fz24">{{totalFee}}积分</view>
       </view>
     </view>
     <view class="pay_btn">
@@ -64,7 +57,8 @@ export default class paySuccess extends wepy.page {
   onLoad(option) {
     //tip.success('支付成功,接收的参数为' + option.orderNo);
     this.orderNo = option.orderNo;
-    this.getPayOrderDetail();
+    this.totalFee = option.totalFee;
+    //this.getPayOrderDetail();
   }
   computed = {
 

@@ -50,6 +50,24 @@ export default class Tips {
     });
   }
 
+  static confirm(text, showCancel, payload = {}, title = "提示") {
+    return new Promise((resolve, reject) => {
+      wx.showModal({
+        title: title,
+        content: text,
+        showCancel: showCancel,
+        success: res => {
+          if (res.confirm) {
+            resolve(payload);
+          } 
+        },
+        fail: res => {
+          reject(payload);
+        }
+      });
+    });
+  }
+
   static toast(title, onHide, icon = "success") {
     setTimeout(() => {
       wx.showToast({

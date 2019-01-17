@@ -24,15 +24,15 @@
         <image src="../images/icon_nav_01_new.png" class="nav_icon"></image>
         <view class="nav_text">签到有礼</view>
       </navigator>
-      <navigator open-type="navigate" url="/pages/classify">
+      <navigator open-type="switchTab" url="/pages/classify">
         <image src="../images/icon_nav_03.png" class="nav_icon"></image>
         <view class="nav_text">商品分类</view>
       </navigator>
-      <navigator open-type="navigate" url="/pages/sign_in">
+      <navigator open-type="navigate" url="/pages/search?cateCode=new&title=新品上架">
         <image src="../images/icon_nav_04_new.png" class="nav_icon"></image>
         <view class="nav_text">新品上架</view>
       </navigator>
-      <navigator open-type="navigate" url="/pages/sign_in">
+      <navigator open-type="navigate" url="/pages/order">
         <image src="../images/icon_nav_03.png" class="nav_icon"></image>
         <view class="nav_text">我的订单</view>
       </navigator>

@@ -24,29 +24,33 @@
 
 
 <view class="goodsList">
-    <!--列表显示2个，绑定数据记得去掉，这里做调试-->
-<repeat for="{{list}}" key="index" index="index" item="item">
 <view class="list_box">
-  <view class="goods-info">
+  <view  wx:for="{{list}}" wx:key="index" wx:index="index" wx:item="item" class="goods-info">
     <view class="img-box">
       <image src="{{item.thumLogo}}" class="img" />
     </view>
     <view class="text-box">
       <view class="goods-title">{{item.specification}}</view>
       <view class="goods-label">["{{item.categoryName}}","{{item.exchangeCodeDesc}}"]</view>
-      <view class="goods-price">{{item.integral}} 积分</view>
+      <view class="goods-price">{{item.integral}}积分</view>
       <view class="buy-num">
+        数量：{{item.num}}{{item.unit}}
         <!-- <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view> -->
-        <input type="number" value="{{item.num}}" disabled/>
+        <!-- <input type="number" value="{{item.num}}" disabled/> -->
         <!-- <view class="jia-btn " catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view> -->
       </view>
     </view>
   </view>
 </view>
-</repeat>
 </view>
       <view class="spacing"></view>
        <view class="order_info">
+        <view class="block">
+          <view class="left">买家备注:</view>
+          <view class="right input_box">
+            <input bindinput="bindKeyInput" placeholder="填写备注信息" />
+          </view>
+        </view>
         <view class="block">
         <view class="left total_jf">可用积分</view>
         <view class="right">{{canUsePrice}}积分</view>
@@ -75,18 +79,17 @@ import {
   USER_SPECICAL_INFO,
   ADDRESS_ID
 } from '@/utils/constant';
-import swipeDelete from '@/components/common/wepy-swipe-delete'
 export default class ComfireOrder extends wepy.page {
   config = {
     navigationBarTitleText: '确认订单',
   }
   components = {
-    swipeDelete
   }
 
   data = {
     list: [],
     goodsId: "",
+    sellerMessage: "",
 
     //是否存在默认地址
     is_exit_address: false,
@@ -160,28 +163,43 @@ export default class ComfireOrder extends wepy.page {
     tip.loading("提交订单中");
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     let openId = userSpecialInfo.openid;
-    const json = await api.saveByCart({
+    const json = await dzapi.saveOrder({
       query: {
-        openId: openId,
-        receiverInfoId: this.address.id,
-        businessMessage: this.sellerMessage,
-        formId: formId,
-        reduceScore: this.jf_num
-      }
+        wxOpenId: openId,
+        deliveryId: this.address.id,
+        remark: this.sellerMessage
+      },
+      method: 'POST'
     });
 
-    if (json.data.code == 0) {
-      //补货直接提交到后台去审核
-      if (this.purchaseType==2) {//补货
-        tip.success("已提交补货申请!");
-        setTimeout(() => {
+    if (json.data.success == true) {
+      const result = json.data.result;
+      if(result.code == 0){
+          //console.log('result：', result)
+          //setTimeout(() => {
+            //支付成功 关闭loadding 跳转到支付成功页面
+            tip.loaded();
+            wepy.redirectTo({
+              url: "/pages/pay_success?orderNo="+ result.data.orderNo + "&totalFee=" + result.data.totalPrice
+            });
+          //}, 2000)
+      } else {
+        tip.loaded();
+        tip.confirm(result.msg, false).then(() => {
+          wepy.switchTab({url: "/pages/home"});
+        });
+        /*setTimeout(() => {
+          //支付失败 关闭loadding 
           tip.loaded();
-          wepy.navigateTo({
-            url: "/pages/reorder"
+          wepy.redirectTo({
+            url: "/pages/order"
           })
-        }, 2000)
-        return;
+        }, 4000)*/
       }
+    } else {
+        tip.error(json.data.error.msg)
+    }
+      /*
       //保存成功了后进行微信支付
       const pay = await api.toPay({
         query:{
@@ -232,7 +250,7 @@ export default class ComfireOrder extends wepy.page {
     } else {
       tip.error(json.data.msg)
     }
-
+    */
   }
 
   methods = {
@@ -334,7 +352,8 @@ export default class ComfireOrder extends wepy.page {
   }
 }
 .list_box {
-  height: 250rpx;
+  //height: 250rpx;
+  height:auto;
 }
 
 .goods-info {
@@ -386,10 +405,12 @@ export default class ComfireOrder extends wepy.page {
   line-height: 48rpx;
   position: absolute;
   right: 30rpx;
-  bottom: 30rpx;
+  //bottom: 30rpx;
+  bottom: 15rpx;
   display: flex;
   font-size: 24rpx;
-  text-align: center
+  text-align: center;
+  color: #e64340;
 }
 
 .goods-info .text-box .buy-num .jian-btn {

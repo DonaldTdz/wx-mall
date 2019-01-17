@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <search @searchValue.user="doSearch"></search>
-    <filterBar wx:if="{{list.length>0||skuval !==''}}" @currentType.user="currentType"></filterBar>
+    <filterBar wx:if="{{cateCode == '' && (list.length > 0 || skuval !=='')}}" @currentType.user="currentType"></filterBar>
     <view wx:if="{{list.length>0}}">
       <!--矩阵商品列表模块-->
       <shopGridList :purchasetype.sync="purchasetype" :list.sync="list"></shopGridList>
@@ -97,7 +97,7 @@
       if (this.cateCode != undefined && this.cateCode.length > 0) { //分类进入
         this.$invoke('search', 'show', "0");
         this.show = false;
-        this.doSearchGoods(this.cateCode);
+        this.doSearchGoods('');
         this.title = "" + option.title;
         this.setTitle("" + option.title);
       } else { //搜索进入
@@ -119,7 +119,7 @@
           CategoryId: this.skuval
         }
       });
-      console.log(json);
+      //console.log(json);
       
       if (json.data.success == true) {
         that.list = [...that.list, ...json.data.result.items];

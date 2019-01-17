@@ -122,7 +122,7 @@
           </view>
           <view class="num_box">
             <view class="title">数量</view>
-            <view class="stock" wx:if="detail.stock">剩余:{{detail.stock}}{{detail.unit}}</view>
+            <view class="stock" wx:if="{{detail.stock}}">剩余:{{detail.stock}}{{detail.unit}}</view>
             <view class="buy-num">
               <view class="jian-btn {{orderNum==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}">-</view>
               <input type="number" bindinput="bindOrderNumInput" value="{{orderNum}}" />
@@ -313,7 +313,8 @@ export default class goodsDetail extends wepy.page {
         wxOpenId: openId,
         goodsId: that.goodsId,
         exchangeCode: that.orderExchange,
-        num: that.orderNum
+        num: that.orderNum,
+        isSelected: false
       },
       method: 'POST'
     });
@@ -341,7 +342,7 @@ export default class goodsDetail extends wepy.page {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     let openId = userSpecialInfo.openid;
-    const json = await api.addCart({
+    /*const json = await api.addCart({
       query: {
         openId: openId,
         goodsId: that.goodsId,
@@ -349,8 +350,18 @@ export default class goodsDetail extends wepy.page {
         purchaseType: this.purchasetype,
         num: this.orderNum
       }
+    });*/
+    const json = await dzapi.addCart({
+      query: {
+        wxOpenId: openId,
+        goodsId: that.goodsId,
+        exchangeCode: that.orderExchange,
+        num: that.orderNum,
+        isSelected: true
+      },
+      method: 'POST'
     });
-    if (json.data.code == 0) {
+    if (json.data.success == true) {
       this.winHeight = "100%";
       this.animation.height(0).step();
       this.setData({
@@ -361,7 +372,7 @@ export default class goodsDetail extends wepy.page {
         this.$apply();
       }, 100)
       wepy.navigateTo({
-        url: "/pages/comfire_order?goodsId=" + that.goodsId + "&purchasetype=" + that.purchasetype
+        url: "/pages/comfire_order?purchasetype=" + that.purchasetype
       })
     } else {
       if (json.data.error) {
