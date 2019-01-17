@@ -9,12 +9,12 @@
       <view class="address_info" wx:else>
         <view class="title">
           <view class="user_info">
-            <text class="name">{{address.receiverName}}</text>
-            <text class="phone">{{address.mobile}}</text>
+            <text class="name">{{address.name}}</text>
+            <text class="phone">{{address.phone}}</text>
           </view>
           <view class="active_address">
-            <text class="defult" wx:if="{{address.isdefault==1}}"> [默认]</text>
-            {{address.addressDetail}}
+            <text class="defult" wx:if="{{address.isDefault==1}}"> [默认]</text>
+            {{address.address}}
           </view>
         </view>
         <view class="arrow">&gt;</view>
@@ -27,54 +27,40 @@
     <!--列表显示2个，绑定数据记得去掉，这里做调试-->
 <repeat for="{{list}}" key="index" index="index" item="item">
 <view class="list_box">
-  <swipeDelete :swipeData="item" @delItem.user="handleDelItem">
-      <view class="goods-info">
-        <view class="img-box">
-          <image src="{{item.thumLogo}}" class="img" />
-        </view>
-        <view class="text-box">
-          <view class="goods-title">{{item.goodsName}}</view>
-          <view class="goods-label">{{item.goodsSkuValName}}</view>
-          <view class="goods-price">¥ {{item.price}}</view>
-          <view class="buy-num">
-            <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
-            <input type="number" value="{{item.num}}" disabled/>
-            <view class="jia-btn " catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
-          </view>
-        </view>
+  <view class="goods-info">
+    <view class="img-box">
+      <image src="{{item.thumLogo}}" class="img" />
+    </view>
+    <view class="text-box">
+      <view class="goods-title">{{item.specification}}</view>
+      <view class="goods-label">["{{item.categoryName}}","{{item.exchangeCodeDesc}}"]</view>
+      <view class="goods-price">{{item.integral}} 积分</view>
+      <view class="buy-num">
+        <!-- <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view> -->
+        <input type="number" value="{{item.num}}" disabled/>
+        <!-- <view class="jia-btn " catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view> -->
       </view>
-  </swipeDelete>
+    </view>
+  </view>
 </view>
 </repeat>
 </view>
-
-
-    <view class="spacing"></view>
-    <view class="order_info">
-      <view class="block">
-        <view class="left">配送方式</view>
-        <view class="right">包邮</view>
-      </view>
-      <view class="block">
-        <view class="left">买家留言:</view>
-        <view class="right input_box">
-          <input bindinput="bindKeyInput" placeholder="对本次交易的说明" />
-        </view>
-      </view>
       <view class="spacing"></view>
+       <view class="order_info">
         <view class="block">
-        <view class="left total_jf">积分 \t共{{total_jf_num}}\t可用{{can_use_score}}</view>
-        <view class="right"><input type="number" class="dk-jf" value="{{jf_num}}" bindinput="jfInput" placeholder="输入抵扣积分"/></view>
+        <view class="left total_jf">可用积分</view>
+        <view class="right">{{canUsePrice}}积分</view>
       </view>
       <view class="spacing"></view>
       <view class="block">
-        <view class="left tongji">商品金额</view>
-        <view><view class="right price" wx:if="{{jf_num>0}}">商品金额:￥{{totalPrice}}-积分:￥{{reduce_fee}}</view><view class="right price">应付:￥{{actualPrice}}</view></view>
+        <view class="left tongji">支付积分</view>
+        <view><view class="right price">{{totalPrice}}积分</view></view>
       </view>
     </view>
     <view class="pay_box">
       <form report-submit bindsubmit="goPay" >
-        <button form-type="submit" class="button type_green">微信支付</button>
+        <button form-type="submit" class="button type_green" wx:if="{{canUsePrice >= totalPrice}}" >下单支付</button>
+        <button form-type="button" class="button" wx:if="{{canUsePrice < totalPrice}}" disabled>积分不足</button>
       </form>
     </view>
   </view>
@@ -82,6 +68,7 @@
 <script>
 import wepy from 'wepy';
 import api from '@/api/api';
+import dzapi from '@/api/dzapi';
 import tip from '@/utils/tip';
 import {
   SYSTEM_INFO,
@@ -100,24 +87,14 @@ export default class ComfireOrder extends wepy.page {
   data = {
     list: [],
     goodsId: "",
-    //卖家留言
-    sellerMessage: "",
 
     //是否存在默认地址
     is_exit_address: false,
     address: {},
     //总价
     totalPrice:0,
-    actualPrice : 0,
+    canUsePrice : 0,
     purchaseType : 1,
-    //总积分
-    total_jf_num: 0,
-    can_use_score:0,
-    deduScore:0,
-    deduFee : 0,
-    //输入抵扣积分
-    jf_num: 0,
-    reduce_fee : 0,
     operating: false
   }
 
@@ -126,27 +103,20 @@ export default class ComfireOrder extends wepy.page {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     let openId = userSpecialInfo.openid;
-    const json = await api.preOrder({
+    const json = await dzapi.getPayOrder({
       query: {
-        openId: openId,
-        goodsId: that.goodsId
+        wxopenid: openId
       }
     });
-    if (json.data.code == 0) {
-      let data = json.data;
-      this.list = data.goodsList;
+    if (json.data.success == true) {
+      let data = json.data.result;
+      this.list = data.items;
       this.totalPrice = data.totalPrice;
-      this.actualPrice = data.actualPrice;
-      this.is_exit_address = data.hasDefaultAddress;
+      this.canUsePrice = data.integral;
+      this.is_exit_address = data.isExitAddress;
       this.address = data.defaultAddress;
-      this.total_jf_num = data.userScore;
-      this.can_use_score = data.canUseScore;
-      this.deduScore = data.deduScore;
-      this.deduFee = data.deduFee;
-      this.jf_num = data.canUseScore;
-      this.reduce_fee = data.reduceFee;
     } else {
-      tip.error(json.data.msg)
+      tip.error(json.data.error.msg)
     }
     that.$apply();
   }
@@ -168,14 +138,8 @@ export default class ComfireOrder extends wepy.page {
 
   onLoad(option) {
     let that = this;
-    this.actualPrice = 0;
+    this.canUsePrice = 0;
     this.totalPrice = 0;
-    this.total_jf_num = 0;
-    this.can_use_score = 0;
-    this.deduScore = 0;
-    this.deduFee = 0;
-    this.jf_num = 0;
-    this.reduce_fee = 0;
     this.operating = false;
     that.goodsId = option.goodsId==undefined?"":option.goodsId;
     this.purchaseType = option.purchasetype==undefined?"1":option.purchasetype;
@@ -271,79 +235,6 @@ export default class ComfireOrder extends wepy.page {
 
   }
 
-  async reduceGoodNum(id, num, index) {
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.cartUpdateNum({
-      query: {
-        openId: openId,
-        id: id,
-        num: num
-      }
-    });
-    if (json.data.code == 0) {
-      // 购物车数据
-      this.list[index].num = num;
-      this.totalPrice = this.totalPrice - this.list[index].price;
-      this.actualPrice = this.totalPrice - this.reduce_fee;
-      this.operating = false;
-    } else {
-      tip.error(json.data.msg)
-    }
-    this.$apply();
-  }
-
-  async addGoodNum(id, num, index) {
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.cartUpdateNum({
-      query: {
-        openId: openId,
-        id: id,
-        num: num
-      }
-    });
-    if (json.data.code == 0) {
-      // 购物车数据
-      this.list[index].num = num;
-      this.totalPrice = parseInt(this.totalPrice) + parseInt(this.list[index].price);
-      this.actualPrice = this.totalPrice - this.reduce_fee;
-      this.operating = false;
-    } else {
-      tip.error(json.data.msg)
-    }
-    this.$apply();
-  }
-
-  async deleteGoods(itemData) {
-    var id = itemData.id;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.cartDel({
-      query: {
-        openId: openId,
-        cartIdList: [id],
-      }
-    });
-    if (json.data.code == 0) {
-      // 购物车数据
-      let retList = [];
-      for (var i = 0; i < this.list.length; i++) {
-        if (this.list[i].id == id) {
-          this.totalPrice -= parseInt(this.list[i].priceSubtotal);
-          this.actualPrice = this.totalPrice - this.reduce_fee;
-          continue;
-        } else {
-          retList.push(this.list[i]);
-        }
-      }
-      this.list = retList;
-    } else {
-      tip.error(json.data.msg)
-    }
-    this.$apply();
-  }
-
   methods = {
     handleDelItem(itemData) {
       this.deleteGoods(itemData);
@@ -367,68 +258,6 @@ export default class ComfireOrder extends wepy.page {
       wepy.navigateTo({
         url: "/pages/address?type=order"
       })
-    },
-    jianBtnTap(e) {
-      if (this.operating) {
-        return;
-      }
-      this.operating = true;
-      var index = parseInt(e.currentTarget.dataset.index);
-      var id =  e.currentTarget.dataset.id;
-      var num = this.list[index].num;
-      // 如果只有1件了，就不允许再减了
-      if (num > 1) {
-        num --;
-      } else {
-        return;
-      }
-      // 购物车数据
-      //this.list[index].num = num;
-      //this.totalPrice = this.totalPrice-this.list[index].price;
-      //this.actualPrice = this.totalPrice - this.reduce_fee;
-      //this.$apply();
-      this.reduceGoodNum(id, num, index);
-    },
-    jiaBtnTap(e) {
-      if (this.operating) {
-        return;
-      }
-      this.operating = true;
-      var index = parseInt(e.currentTarget.dataset.index);
-      var num = this.list[index].num;
-      var id =  e.currentTarget.dataset.id;
-      // 自增
-      num ++;
-      // 购物车数据
-      /*this.list[index].num = num;
-      this.totalPrice = parseInt(this.totalPrice)+parseInt(this.list[index].price);
-      this.actualPrice = this.totalPrice - this.reduce_fee;
-      this.$apply();*/
-      this.addGoodNum(id, num, index);
-    },
-    jfInput(e) {
-      let num = e.detail.value * 10 / 10;
-      let reg = /^[0-9]+$/;
-      if (!reg.test(num)) {
-        tip.error("输入类型有误");
-        this.jf_num="";
-        return {
-          value: ""
-        };;
-      }
-      if (this.can_use_score != num && num !=0  ) {
-        this.jf_num = this.can_use_score;
-      }/* else if(parseInt(this.jf_num)%this.deduScore) {
-        this.jf_num = Math.floor(parseInt(this.jf_num)/this.deduScore)*this.deduScore;
-      }*/ else {
-        this.jf_num = num;
-      }
-      let beishu = this.jf_num/this.deduScore;
-      this.reduce_fee = beishu * this.deduFee;
-      this.actualPrice = this.totalPrice - this.reduce_fee;
-      return {
-        value: this.jf_num
-      };
     }
   }
   events = {

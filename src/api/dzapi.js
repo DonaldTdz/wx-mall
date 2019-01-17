@@ -30,6 +30,12 @@ const getUserCartList = (params) => wxRequest(params, apiMall + '/api/services/a
 const getCheckCartGoods = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/GetCheckCartGoodsAsync');
 
 const userShopCartDelete = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/UserShopCartDeleteAsync');
+
+//购物车去结算
+const payOrderConfirm = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/PayOrderConfirmAsync');
+
+//获取结算明细
+const getPayOrder = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/GetPayOrderAsync');
 //签到
 const signIn = (params) => wxRequest(params, apiMall + '/api/services/app/IntegralDetail/SignInAsync');
 //检查是否签到
@@ -52,6 +58,7 @@ const getUserAddress = (params) => wxRequest(params, apiMall + '/api/services/ap
 const receiverInfoById = (params) => wxRequest(params, apiMall + '/api/services/app/Delivery/GetWxDeliveryByIdAsync');
 //删除收货地址
 const delUserAddress = (params) => wxRequest(params, apiMall + '/api/services/app/Delivery/WXDelete');
+
 export default {
     wxJsCode2Session,
     getHeatGoods,
@@ -74,4 +81,6 @@ export default {
     getUserAddress,
     receiverInfoById,
     delUserAddress,
+    payOrderConfirm,
+    getPayOrder
 }
