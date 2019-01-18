@@ -1,24 +1,21 @@
 <!--订单详情-->
 <template>
   <view class="order_detail">
-  <navigator class="item_content" url="/pages/logistics?orderNo={{orderNo}}">
-    <view class="order_state" wx:if="{{obj.status==2 || obj.status==1}}">
-      <view class="left">
-        <i class="iconfont icon-complete"></i>
+    <!-- <navigator class="item_content" url="/pages/logistics?orderNo={{id}}">
+      <view class="order_state" wx:if="{{obj.status==2 || obj.status==1}}">
+        <view class="left">
+          <i class="iconfont icon-complete"></i>
+        </view>
+        <view class="center">
+          <view class="state_doc">{{expressFlowInfo.flowName}}</view>
+          <view class="state_time">{{expressFlowInfo.updateTime}}</view>
+        </view>
+        <view class="right">
+          <view>&gt;</view>
+        </view>
       </view>
-
-      <view class="center">
-        <view class="state_doc">{{expressFlowInfo.flowName}}</view>
-        <view class="state_time">{{expressFlowInfo.updateTime}}</view>
-      </view>
-
-      <view class="right">
-        <view>&gt;</view>
-      </view>
-
-    </view>
-  </navigator>
-    <view class="order_state" wx:if="{{obj.status==0}}">
+    </navigator>-->
+    <!-- <view class="order_state" wx:if="{{obj.status==0}}">
       <view class="left">
         <view class="unpaid">
           <i class="iconfont icon-wait"></i>
@@ -29,15 +26,16 @@
         <text class="time_doc">剩余时间:</text>
         <text class="time_num">59:30:30</text>
       </view>
-    </view>
+    </view>-->
+
     <view class="address_block">
       <view class="name">
-        <text class="title"> 收货人:</text>
-        <text class="content">{{obj.receiverName}}\t\t{{obj.receiverPhone}}</text>
+        <text class="title">收货人:</text>
+        <text class="content">{{obj.deliveryName}}\t\t{{obj.deliveryPhone}}</text>
       </view>
       <view class="address">
-        <text class="title"> 收货地址:</text>
-        <text class="content">{{obj.receiverAddress}} </text>
+        <text class="title">收货地址:</text>
+        <text class="content">{{obj.deliveryAddress}}</text>
       </view>
     </view>
     <view class="goods_block">
@@ -45,210 +43,261 @@
     </view>
     <view class="info_block">
       <view class="item">
-        <text class="title">订单编号:</text>
-        <text class="content">{{obj.orderNo}}</text>
+        <text class="title">订单编号：</text>
+        <text class="content">{{obj.number}}</text>
+      </view>
+      <!-- <view class="item">
+        <text class="title">订单总积分：</text>
+        <text class="content">{{obj.integral}}</text>
+      </view>-->
+      <view class="item">
+        <text class="title">下单时间：</text>
+        <text class="content">{{obj.timeFormat}}</text>
       </view>
       <view class="item">
-        <text class="title">提交时间:</text>
-        <text class="content">{{obj.createTime}}</text>
+        <text class="title">支付方式：</text>
+        <text class="content">积分兑换</text>
       </view>
       <view class="item">
-        <text class="title">支付方式:</text>
-        <text class="content">微信支付</text>
+        <text class="title">订单状态：</text>
+        <text class="content">{{obj.statusName}}</text>
       </view>
-      <view class="item" wx:if="{{obj.payStatus==1}}">
+      <view class="item">
+        <text class="title">订单备注：</text>
+        <text class="content">{{obj.remark}}</text>
+      </view>
+      <!-- <view class="item" wx:if="{{obj.payStatus==1}}">
         <text class="title">付款时间:</text>
         <text class="content">{{obj.payedTime}}</text>
-      </view>
+      </view>-->
     </view>
     <view class="footer">
-      <view class="money">应付款:
-        <text class="receive_money">{{obj.goodsPrices}}</text>
+      <view class="money">订单总积分：
+        <text class="receive_money">{{obj.integral}}积分</text>
       </view>
       <view class="btn_group">
-
-        <view class="btn" @tap="goLogistics" wx:if="{{obj.status==2}}" data-id="{{obj.orderNo}}">查看物流</view>
-        <view class="btn type_pick dsh" @tap="completion" wx:if="{{obj.status==2}}" data-id="{{obj.orderNo}}">待收货</view>
-        <view class="btn type_pick dsh" @tap="payMoney" wx:if="{{obj.status==0}}" data-id="{{obj.orderNo}}" data-orderno="{{obj.payOrderNo}}">立即付款</view>
-<!--<view class="btn" @tap="delOrder" wx:if="{{obj.status==0 || obj.status==4}}" data-id="{{obj.orderNo}}">删除订单</view>-->
-        <!--<view class="btn type_pick dsh" @tap="refund" wx:if="{{obj.status==4}}" data-id="{{obj.orderNo}}">申请退货</view>-->
+        <view
+          class="btn"
+          @tap="cancelOrder"
+          wx:if="{{obj.status =='2' &&isCancel}}"
+          data-id="{{obj.orderId}}"
+        >取消订单</view>
+        <!-- <view
+          class="btn type_pick dsh"
+          @tap="completion"
+          wx:if="{{obj.status==2}}"
+          data-id="{{obj.orderNo}}"
+        >待收货</view>
+        <view
+          class="btn type_pick dsh"
+          @tap="payMoney"
+          wx:if="{{obj.status==0}}"
+          data-id="{{obj.orderNo}}"
+          data-orderno="{{obj.payOrderNo}}"
+        >立即付款</view>
+        <view
+          class="btn"
+          @tap="delOrder"
+          wx:if="{{obj.status==0 || obj.status==4}}"
+          data-id="{{obj.orderNo}}"
+        >删除订单</view>
+        <view
+          class="btn type_pick dsh"
+          @tap="refund"
+          wx:if="{{obj.status==2}}"
+          data-id="{{obj.orderNo}}"
+        >申请退货</view>-->
       </view>
     </view>
   </view>
 </template>
 <script>
-import wepy from 'wepy';
-import tip from '@/utils/tip'
-import ShopItemList from '@/components/shop_item_list'
-import api from '@/api/api'
-import {
-  SYSTEM_INFO,
-  USER_SPECICAL_INFO
-} from '@/utils/constant';
+import wepy from "wepy";
+import tip from "@/utils/tip";
+import ShopItemList from "@/components/shop_item_list";
+import api from "@/api/api";
+import dzapi from "@/api/dzapi";
+import { SYSTEM_INFO, USER_SPECICAL_INFO } from "@/utils/constant";
 export default class OrderDetail extends wepy.page {
   config = {
-    navigationBarTitleText: '订单详情',
-  }
+    navigationBarTitleText: "订单详情"
+  };
   data = {
     obj: {},
-    orderNo:"",
-    flag:"",
-    list:[],
-    orderExpress:{},
-    expressFlowInfo:{}
-  }
+    id: "",
+    flag: "",
+    list: [],
+    isCancel: true,
+    orderExpress: {},
+    expressFlowInfo: {}
+  };
 
-  async getOrderInfo(currentPage,size) {
+  async getOrderDetailList(orderId) {
     let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.getOrderInfo({
+    const json = await dzapi.getOrderDetailList({
       query: {
-        orderNo: this.orderNo
+        OrderId: orderId
       }
     });
-    if (json.data.code == 0) {
-      this.obj=json.data.obj;
-      that.list=[];
-      that.list = [...that.list, ...json.data.obj.orderItemList];
-      that.$invoke('shopItemList', 'refreshList', that.list);
-
-      console.log("========list返回数据========");
-      console.log(that.list);
-      console.log(json.data.obj.orderItemList);
+    if (json.data.success == true) {
+      that.list = [...json.data.result.list];
+      that.isCancel = json.data.result.isCancel;
+      that.$invoke("shopItemList", "refreshList", that.list);
     } else {
-      tip.error(json.data.msg)
+      tip.error(json.data.msg);
     }
 
     that.$apply();
   }
 
-  async editOrderInfo(orderNo,flag) {
+  async getOrderInfoById(orderId) {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.editOrderInfo({
+    const json = await dzapi.getOrderInfoById({
       query: {
-        orderNo: orderNo,
-        flag:flag
+        OrderId: orderId
+        // flag: flag
       }
     });
-    if (json.data.code == 0) {
-      console.log("===========lzz返回数据=========")
-      console.log(json.data.errerTips);
+    if (json.data.success == true) {
+      this.obj = json.data.result;
       /*that.list = [...that.list, ...json.data.errerTips.orderItemList];
       that.$invoke('shopItemList', 'refreshList', that.list);
       console.log(json.data.errerTips.orderItemList);
       console.log(that.list);*/
-      if (this.flag==2) {//删除
-
-      }
+      // if (this.flag == 2) {
+      //   //删除
+      // }
     } else {
-      tip.error(json.data.msg)
+      tip.error(json.data.msg);
     }
     that.$apply();
   }
 
-  async getOrderExpressInfo() {
-    console.log("orderNo")
+  async cancelOrderById(orderId) {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.orderExpressInfo({
+    let openId = userSpecialInfo.openid;
+    const json = await dzapi.cancelOrderById({
       query: {
-        orderNo: this.orderNo
-      }
+        OrderId: that.orderId,
+        WxOpenId: openId
+      },
+      method: "POST"
     });
-    if (json.data.code == 0) {
-      that.orderExpress=json.data.orderExpress;
-      that.expressFlowInfo=json.data.expressFlowInfo;
-      console.log("========list返回数据========");
-      console.log(that.list);
-    } else {
-      tip.error(json.data.msg)
-    }
 
+    if (json.data.success == true) {
+      this.obj = json.data.result;
+      /*that.list = [...that.list, ...json.data.errerTips.orderItemList];
+      that.$invoke('shopItemList', 'refreshList', that.list);
+      console.log(json.data.errerTips.orderItemList);
+      console.log(that.list);*/
+      // if (this.flag == 2) {
+      //   //删除
+      // }
+      getOrderInfoById(orderId);
+      getOrderDetailList(orderId);
+      tip.success("订单取消成功!", 3000);
+    } else {
+      tip.error(json.data.msg);
+    }
     that.$apply();
   }
+
+  // async getOrderExpressInfo() {
+  //   console.log("orderId");
+  //   let that = this;
+  //   let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+  //   const json = await api.orderExpressInfo({
+  //     query: {
+  //       orderId: this.orderId
+  //     }
+  //   });
+  //   if (json.data.code == 0) {
+  //     that.orderExpress = json.data.orderExpress;
+  //     that.expressFlowInfo = json.data.expressFlowInfo;
+  //     // console.log("========list返回数据========");
+  //     // console.log(that.list);
+  //   } else {
+  //     tip.error(json.data.msg);
+  //   }
+
+  //   that.$apply();
+  // }
 
   components = {
     shopItemList: ShopItemList
-  }
+  };
   onLoad(options) {
     let that = this;
     //that.list = bb.result.products;
-    this.orderNo=options.orderNo;
-    that.getOrderInfo();
-    that.getOrderExpressInfo();
-    console.log(bb.result.products)
+    this.orderId = options.orderId;
+    that.getOrderDetailList(this.orderId);
+    that.getOrderInfoById(this.orderId);
+    // that.getOrderExpressInfo();
+    // console.log(bb.result.products);
     console.log("=========options==========");
     console.log(options.id);
   }
-  computed = {
-
-  }
+  computed = {};
   methods = {
-    async delOrder(e) {
-      this.flag=2;
+    async cancelOrder(e) {
       this.orderNo = e.currentTarget.dataset.id;
-      await tip.confirm('是否删除订单');
-      console.log(this.flag);
-      this.editOrderInfo(this.orderNo,this.flag);
-      console.log("删除成功")
-    },
-    async completion(e) {
-      this.flag=3;
-      this.orderNo = e.currentTarget.dataset.id;
-      await tip.confirm('是否确认收货');
-      this.editOrderInfo(this.orderNo,this.flag);
-      console.log("完成")
-    },
-    async goLogistics() {
-      tip.confirm('查看物流');
-    },
-    async payMoney(e) {
-      let tradeNo = e.currentTarget.dataset.tradeno;
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-
-      const pay = await api.toPay({
-        query:{
-          openId: openId,
-          orderNo: tradeNo
-        }
-      });
-      if (pay.data.code==0) {
-        //以下是微信支付
-        wx.requestPayment({
-          appId: pay.data.appId,
-          timeStamp: pay.data.timeStamp,
-          nonceStr: pay.data.nonceStr,
-          package: pay.data.package,
-          signType: 'MD5',
-          paySign: pay.data.paySign,
-          success: function (res) {
-            console.log('pay', res)
-            setTimeout(() => {
-              //支付成功 关闭loadding 跳转到支付成功页面
-              tip.loaded();
-              wepy.navigateTo({
-                url: "/pages/pay_success?orderNo="+tradeNo
-              })
-            }, 2000)
-          },
-          fail: function (res) {
-            tip.alert('支付失败');
-          }
-        })
-      } else {
-        tip.alert('支付失败');
-      }
+      await tip.confirm("是否取消订单");
+      this.cancelOrderById(this.orderNo, this.flag);
+      console.log("删除成功");
     }
-  }
+    // async completion(e) {
+    //   this.flag = 3;
+    //   this.orderNo = e.currentTarget.dataset.id;
+    //   await tip.confirm("是否确认收货");
+    //   this.editOrderInfo(this.orderNo, this.flag);
+    //   console.log("完成");
+    // },
+    // async goLogistics() {
+    //   tip.confirm("查看物流");
+    // },
+    // async payMoney(e) {
+    //   let tradeNo = e.currentTarget.dataset.tradeno;
+    //   let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    //   let openId = userSpecialInfo.openid;
+    //   const pay = await api.toPay({
+    //     query: {
+    //       openId: openId,
+    //       orderNo: tradeNo
+    //     }
+    //   });
+    //   if (pay.data.code == 0) {
+    //     //以下是微信支付
+    //     wx.requestPayment({
+    //       appId: pay.data.appId,
+    //       timeStamp: pay.data.timeStamp,
+    //       nonceStr: pay.data.nonceStr,
+    //       package: pay.data.package,
+    //       signType: "MD5",
+    //       paySign: pay.data.paySign,
+    //       success: function(res) {
+    //         console.log("pay", res);
+    //         setTimeout(() => {
+    //           //支付成功 关闭loadding 跳转到支付成功页面
+    //           tip.loaded();
+    //           wepy.navigateTo({
+    //             url: "/pages/pay_success?orderNo=" + tradeNo
+    //           });
+    //         }, 2000);
+    //       },
+    //       fail: function(res) {
+    //         tip.alert("支付失败");
+    //       }
+    //     });
+    //   } else {
+    //     tip.alert("支付失败");
+    //   }
+    // }
+  };
 
-  events = {
-
-  }
-
+  events = {};
 }
-
 </script>
 <style lang="less">
 .order_detail {
@@ -364,5 +413,4 @@ export default class OrderDetail extends wepy.page {
     color: #ff4856;
   }
 }
-
 </style>

@@ -11,7 +11,7 @@
         placeholder="请输入手机号码"
         maxlength="11"
         focus="true"
-      >
+      ></input>
     </view>
     <!-- <view class="section">
       <view class="section_title">验证码</view>

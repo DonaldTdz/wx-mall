@@ -2,7 +2,7 @@
   <view class="info">
     <view class="header">
       <view class="header_content">
-        <image class="avatarUrl" src="{{avatarUrl}}">
+        <image class="avatarUrl" src="{{avatarUrl}}"/>
         <view class="nickName cfff">{{nickName}}</view>
       </view>
     </view>
@@ -15,39 +15,38 @@
           </view>
         </view>
         <view class="arrow">&gt;</view>
-      </navigator> -->
-            <navigator class="item" url="/pages/order">
+      </navigator>-->
+      <navigator class="item" url="/pages/order">
         <view class="item_content">
-          <image class="item_img" src="../images/icon_my_02.png">
+          <image class="item_img" src="../images/icon_my_02.png"/>
           <view class="text">我的订单</view>
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
-
       <!-- <navigator class="item" url="/pages/reorder">
         <view class="item_content">
           <image class="item_img" src="../images/icon_my_02.png">
           <view class="text">补货订单</view>
         </view>
         <view class="arrow">&gt;</view>
-      </navigator> -->
+      </navigator>-->
       <navigator class="item" url="/pages/points">
         <view class="item_content">
-          <image class="item_img" src="../images/icon_my_03.png">
+          <image class="item_img" src="../images/icon_my_03.png"/>
           <view class="text">我的积分</view>
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
       <navigator class="item" url="/pages/address">
         <view class="item_content">
-          <image class="item_img" src="../images/icon_my_04.png">
+          <image class="item_img" src="../images/icon_my_04.png"/>
           <view class="text">收货地址</view>
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
-                  <navigator class="item" url="/pages/register">
+      <navigator class="item" url="/pages/register">
         <view class="item_content">
-          <image class="item_img" src="../images/icon_my_01.png">
+          <image class="item_img" src="../images/icon_my_01.png"/>
           <view class="text">绑定手机号</view>
         </view>
         <view class="arrow">&gt;</view>
@@ -58,7 +57,7 @@
           <view class="text">我的收藏</view>
         </view>
         <view class="arrow">&gt;</view>
-      </navigator> -->
+      </navigator>-->
     </view>
     <!-- <view class="info_block">
       <navigator class="item" url="/pages/messages">
@@ -75,7 +74,7 @@
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
-    </view> -->
+    </view>-->
   </view>
 </template>
 <script>

@@ -102,6 +102,7 @@ export default class AddressList extends wepy.component {
 
     setOrgType(type) {
       this.type = type;
+      console.log(type);
     },
 
     tapSelAddress(e) {

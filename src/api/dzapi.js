@@ -1,6 +1,6 @@
 import {
     wxRequest
-  } from '@/utils/wxRequest';
+} from '@/utils/wxRequest';
 
 let env = "-test" //-dev 或者 -test
 const apiMall = 'http://localhost:21021/'
@@ -37,8 +37,8 @@ const payOrderConfirm = (params) => wxRequest(params, apiMall + '/api/services/a
 //获取结算明细
 const getPayOrder = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/GetPayOrderAsync');
 
- //支付订单
- const saveOrder = (params) => wxRequest(params, apiMall + '/api/services/app/Order/SaveOrderAsync');
+//支付订单
+const saveOrder = (params) => wxRequest(params, apiMall + '/api/services/app/Order/SaveOrderAsync');
 
 //签到
 const signIn = (params) => wxRequest(params, apiMall + '/api/services/app/IntegralDetail/SignInAsync');
@@ -62,7 +62,14 @@ const getUserAddress = (params) => wxRequest(params, apiMall + '/api/services/ap
 const receiverInfoById = (params) => wxRequest(params, apiMall + '/api/services/app/Delivery/GetWxDeliveryByIdAsync');
 //删除收货地址
 const delUserAddress = (params) => wxRequest(params, apiMall + '/api/services/app/Delivery/WXDelete');
-
+//获取我的订单
+const getMyOrderList = (params) => wxRequest(params, apiMall + '/api/services/app/Order/GetOrderListAsync');
+//获取订单信息
+const getOrderInfoById = (params) => wxRequest(params, apiMall + '/api/services/app/Order/GetOrderByIdAsync');
+//获取订单详情
+const getOrderDetailList = (params) => wxRequest(params, apiMall + '/api/services/app/OrderDetail/GetOrderDetailListByIdAsync');
+//取消订单
+const cancelOrderById = (params) => wxRequest(params, apiMall + '/api/services/app/Order/CancelOrderByIdAsync');
 export default {
     wxJsCode2Session,
     getHeatGoods,
@@ -87,6 +94,9 @@ export default {
     delUserAddress,
     payOrderConfirm,
     getPayOrder,
-    saveOrder
-  }
-  
+    saveOrder,
+    getMyOrderList,
+    getOrderInfoById,
+    getOrderDetailList,
+    cancelOrderById,
+}

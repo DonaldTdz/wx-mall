@@ -1,6 +1,6 @@
 <template>
   <view class="sgin_in">
-    <image src="../images/bc_qdyl.png" class="head_bc">
+    <image src="../images/bc_qdyl.png" class="head_bc"/>
     <view class="qd_content">
       <view class="jf">积分:{{score}}</view>
       <view class="out_crl">
@@ -116,12 +116,13 @@ export default class SignIn extends wepy.page {
     if (json.data.success == true) {
       tip.success("恭喜获得5积分!", 3000);
       that.signed = true;
-      that.score =+5;
+      that.score += 5;
       // that.conDays = that.conDays + 1;
       that.siging = false;
       // this.getUserSign();
       // this.$invoke("wepySignTime", "refreshList", "");
       // that.$apply();
+      this.getIntegralDetail();
     } else {
       // wepy.showToast({
       //   title: json.data.msg,

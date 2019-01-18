@@ -3,7 +3,12 @@
   <view class="swiper-tab-pd">
     <tab @currentTab.user="getCurrentTab" :tabList.sync="tabList" :currentTab.sync="currentTab"></tab>
   </view>
-  <scroll-view scroll-y="true" class="swiper-item-box" style="height:{{winHeight - 31}}px" bindscrolltolower="onReachBottom">
+  <scroll-view
+    scroll-y="true"
+    class="swiper-item-box"
+    style="height:{{winHeight - 31}}px"
+    bindscrolltolower="onReachBottom"
+  >
     <orderItem :orderList.sync="orderList"></orderItem>
     <!--加载更多时动画-->
     <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
@@ -12,76 +17,76 @@
   </scroll-view>
 </template>
 <script>
-import wepy from 'wepy';
-import Tab from '@/components/tab'
-import {
-  SYSTEM_INFO,
-  USER_SPECICAL_INFO
-} from '@/utils/constant';
-import OrderItem from '@/components/order_item'
-import BottomLoadMore from "../components/common/bottomLoadMore"
-import Placeholder from "../components/common/placeholder"
-import api from '@/api/api';
+import wepy from "wepy";
+import Tab from "@/components/tab";
+import { SYSTEM_INFO, USER_SPECICAL_INFO } from "@/utils/constant";
+import OrderItem from "@/components/order_item";
+import BottomLoadMore from "../components/common/bottomLoadMore";
+import Placeholder from "../components/common/placeholder";
+import api from "@/api/api";
+import dzapi from "@/api/dzapi";
 export default class Order extends wepy.page {
   config = {
-    navigationBarTitleText: "我的订单",
-  }
+    navigationBarTitleText: "我的订单"
+  };
   components = {
     tab: Tab,
     orderItem: OrderItem,
     bottomLoadMore: BottomLoadMore,
     placeholder: Placeholder
-  }
+  };
   data = {
     winHeight: 0,
     totalCount: 0,
-    tabList: ["全部订单", "待支付", "待收货", "已完成"],
+    tabList: ["全部订单", "已支付", "已完成", "已取消"],
     orderList: [],
     currentPage: 1,
     is_empty: false,
     orderStatus: "",
     currentTab: 0,
     flag: 0,
+    //待付款
+    pendingPayCount: 0,
+    //待发货
+    backrdersCount: 0,
+    //待收货
+    shippedCount: 0,
+
+    receiveFlg: 0,
+    //当前页面
+    currentPage: 1,
+    //总页数
+    page_total: 0,
     //是否显示 底部loading
     showLoading: true,
     //防止重复加载
-    preventRepeatReuqest: false,
-    //待付款
-    pendingPayCount : 0,
-    //待发货
-    backrdersCount : 0,
-    //待收货
-    shippedCount : 0,
+    preventRepeatReuqest: false
+  };
 
-    receiveFlg : 0
-  }
-
-  async getMyOrder(currentPage, size,refresh) {
-
-    console.log("refresh值："+refresh);
+  async getMyOrder(currentPage, size, refresh) {
+    console.log("refresh值：" + refresh);
     let that = this;
-    console.log("orderStatus值");
+    // console.log("orderStatus值");
     console.log("orderStatus值" + that.orderStatus);
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     let openId = userSpecialInfo.openid;
-    const json = await api.getMyOrderList({
+    const json = await dzapi.getMyOrderList({
       query: {
-        openId: openId,
-        orderStatus: that.orderStatus,
-        receiveFlg : that.receiveFlg,
+        WxOpenId: openId,
+        status: that.orderStatus,
+        receiveFlg: that.receiveFlg,
         page: currentPage || 1,
         size: size || 10,
         type: 1 //正常单
       }
     });
-    if (json.data.code == 0) {
-      console.log("json.data.list");
-      console.log(json.data.list);
-      if (refresh) {
-        that.orderList = json.data.list;
-      } else {
-        that.orderList = [...that.orderList, ...json.data.list];
-      }
+    if (json.data.success == true) {
+      console.log(json.data.result.items);
+      // if (refresh) {
+      that.orderList = json.data.result.items;
+      // } else {
+      //   that.orderList = [...that.orderList, ...json.data.list];
+      // }
       that.page_total = json.data.page_total;
       that.totalCount = json.data.totalCount;
       console.log("条目数：" + that.totalCount);
@@ -91,11 +96,11 @@ export default class Order extends wepy.page {
       } else {
         that.is_empty = false;
       }
-      that.getMyOrderSize();
+      // that.getMyOrderSize();
       console.log("list返回数据");
       console.log(that.orderList);
     } else {
-      tip.error(json.data.msg)
+      // tip.error(json.data.msg);
     }
     that.showLoading = false;
     that.$apply();
@@ -120,12 +125,16 @@ export default class Order extends wepy.page {
       that.shippedCount = json.data.shippedCount;
 
       //重写list
-      var dotList = ["全部订单", { name: "待支付", dotNum: that.pendingPayCount }, { name: "待收货", dotNum: that.backrdersCount }, "已完成"];
+      var dotList = [
+        "全部订单",
+        { name: "待支付", dotNum: that.pendingPayCount },
+        { name: "待收货", dotNum: that.backrdersCount },
+        "已完成"
+      ];
       this.$invoke("tab", "changeList", dotList);
       that.$apply();
     }
   }
-
 
   onLoad(opts) {
     let that = this;
@@ -138,9 +147,7 @@ export default class Order extends wepy.page {
     that.winHeight = systemInfo.windowHeight;
     that.$apply();
   }
-  computed = {
-
-  }
+  computed = {};
   methods = {
     getCurrentTab(cur, evt) {
       this.currentPage = 1;
@@ -155,20 +162,26 @@ export default class Order extends wepy.page {
         console.log("所有订单类型");
         that.orderStatus = "";
         that.getMyOrder();
-      } else if (cur == 1) {
-        console.log("未付款订单类型");
-        that.orderStatus = 0;
+      }
+      // else if (cur == 1) {
+      //   console.log("待支付订单类型");
+      //   that.orderStatus = 1;
+      //   that.getMyOrder();
+      // }
+      else if (cur == 1) {
+        console.log("已支付订单类型");
+        that.orderStatus = 2;
+        that.receiveFlg = 2;
         that.getMyOrder();
       } else if (cur == 2) {
-        console.log("待收货订单类型");
-        that.orderStatus = 2;
-        that.receiveFlg=2;
+        console.log("已完成订单类型");
+        that.orderStatus = 3;
+        that.receiveFlg = 3;
         that.getMyOrder();
       } else if (cur == 3) {
-
         console.log("已完成订单类型");
         that.orderStatus = 4;
-        that.receiveFlg=4;
+        that.receiveFlg = 4;
         that.getMyOrder();
       }
       that.$apply();
@@ -177,29 +190,28 @@ export default class Order extends wepy.page {
      * 滑动切换tab
      */
     bindChange(e) {
-
       let that = this;
       that.currentTab = e.detail.current;
       console.log("change tab...." + e.detailcurrent);
       that.$apply();
-    },
-  }
+    }
+  };
   events = {
-    refreshOrderList(msg){
-      console.log("msg值:"+msg);
-      if(msg==3){
-        this.currentTab=3;
+    refreshOrderList(msg) {
+      console.log("msg值:" + msg);
+      if (msg == 3) {
+        this.currentTab = 3;
         this.$apply();
         this.orderStatus = 4;
       }
-      this.getMyOrder(1,10,1);
+      this.getMyOrder(1, 10, 1);
     }
-  }
+  };
   watch = {
     currentTab(val) {
-      console.log("====" + val)
+      console.log("====" + val);
     }
-  }
+  };
 
   //加载更多
   onReachBottom() {
@@ -208,7 +220,7 @@ export default class Order extends wepy.page {
     that.showLoading = true;
     console.log(that.page_total + "232===" + that.currentPage);
     //判断总页数是否大于翻页数
-    if ((that.page_total) > that.currentPage) {
+    if (that.page_total > that.currentPage) {
       //防止重复加载
       if (that.preventRepeatReuqest) {
         return true;
@@ -219,28 +231,32 @@ export default class Order extends wepy.page {
       if (this.currentTab == 0) {
         console.log("所有订单类型");
         that.getMyOrder(that.currentPage);
-      } else if (this.currentTab == 1) {
-        console.log("未付款订单类型");
-        that.orderStatus = 0;
+      }
+      // else if (this.currentTab == 1) {
+      //   console.log("未付款订单类型");
+      //   that.orderStatus = 0;
+      //   that.getMyOrder(that.currentPage);
+      // }
+      else if (this.currentTab == 1) {
+        console.log("待发货订单类型");
+        that.orderStatus = 1;
+        that.receiveFlg = 1;
         that.getMyOrder(that.currentPage);
       } else if (this.currentTab == 2) {
-        console.log("待发货订单类型");
-        that.orderStatus = 2;
-        that.receiveFlg=2;
+        console.log("已完成订单类型");
+        that.orderStatus = 3;
         that.getMyOrder(that.currentPage);
       } else if (this.currentTab == 3) {
-        console.log("已完成订单类型");
-        that.orderStatus = 4;
+        console.log("已取消订单类型");
+        that.orderStatus = 3;
         that.getMyOrder(that.currentPage);
       }
       that.preventRepeatReuqest = false;
     } else {
       that.showLoading = false;
     }
-  };
-
+  }
 }
-
 </script>
 <style lang="less">
 .swiper-tab-pd {
@@ -252,5 +268,4 @@ export default class Order extends wepy.page {
   color: #ff4856;
   border-bottom: 5rpx solid #ff4856;
 }
-
 </style>
