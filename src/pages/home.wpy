@@ -21,19 +21,19 @@
     </view>
     <view class="nav_list">
       <navigator open-type="navigate" url="/pages/sign_in">
-        <image src="../images/icon_nav_01_new.png" class="nav_icon"></image>
+        <image src="../images/icon_gift.png" class="nav_icon"></image>
         <view class="nav_text">签到有礼</view>
       </navigator>
       <navigator open-type="navigate" url="/pages/search?cateCode=new&title=新品上架">
-        <image src="../images/icon_nav_04_new.png" class="nav_icon"></image>
+        <image src="../images/icon_new.png" class="nav_icon"></image>
         <view class="nav_text">新品上架</view>
       </navigator>
       <navigator open-type="switchTab" url="/pages/classify">
-        <image src="../images/icon_nav_03.png" class="nav_icon"></image>
+        <image src="../images/icon_group.png" class="nav_icon"></image>
         <view class="nav_text">商品分类</view>
       </navigator>
       <navigator open-type="navigate" url="/pages/order">
-        <image src="../images/icon_nav_03.png" class="nav_icon"></image>
+        <image src="../images/icon_order.png" class="nav_icon"></image>
         <view class="nav_text">我的订单</view>
       </navigator>
       <!-- <navigator open-type="navigate" url="/pages/exchange_goods">

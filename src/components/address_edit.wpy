@@ -30,13 +30,13 @@
       <view class="list_item">
         <view class="title">收货人姓名:</view>
         <view class="input">
-          <input type="text" name="name" value="{{editInfo.name}}">
+          <input type="text" name="name" value="{{editInfo.name}}" />
         </view>
       </view>
       <view class="list_item">
         <view class="title">收货人电话:</view>
         <view class="input">
-          <input type="text" name="phone" value="{{editInfo.phone}}">
+          <input type="text" name="phone" value="{{editInfo.phone}}" />
         </view>
       </view>
       <view class="list_item">
