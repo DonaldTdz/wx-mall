@@ -3,7 +3,7 @@
     <view class="header">
       <view class="header_content">
         <image class="avatarUrl" src="{{avatarUrl}}"/>
-        <view class="nickName cfff">{{nickName}}</view>
+        <view class="nickName cfff">{{nickName}} [{{userTypeName}}]</view>
       </view>
     </view>
     <view class="info_block">
@@ -51,6 +51,13 @@
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
+      <navigator class="item" url="/pages/vipRegister">
+        <view class="item_content">
+          <image class="item_img" src="../images/icon_my_05.png"/>
+          <view class="text">VIP认证</view>
+        </view>
+        <view class="arrow">&gt;</view>
+      </navigator>
       <!-- <navigator class="item" url="/pages/collection?type=1">
         <view class="item_content">
           <image class="item_img" src="../images/icon_my_05.png">
@@ -80,6 +87,7 @@
 <script>
 import wepy from "wepy";
 import api from "@/api/api";
+import dzapi from '@/api/dzapi';
 import { USER_INFO, USER_SPECICAL_INFO } from "@/utils/constant";
 export default class Index extends wepy.page {
   config = {
@@ -90,7 +98,8 @@ export default class Index extends wepy.page {
   data = {
     avatarUrl: "",
     nickName: "",
-    bShowBind: false
+    bShowBind: false,
+    userTypeName:""
   };
   async getUserInfo(phone, code) {
     let that = this;
@@ -115,9 +124,29 @@ export default class Index extends wepy.page {
     that.showLoading = false;
   }
 
+  async getUserTypeNameAsync() {
+    let that = this;
+    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    let openId = userSpecialInfo.openid;
+    const json = await dzapi.getUserTypeNameAsync({
+      query: {
+        WxOpenId: openId
+      }
+    });
+
+    if (json.data.success == true) {
+      this.userTypeName = json.data.result.userTypeName;
+      that.$apply();
+    } else {
+      tip.error(json.data.msg);
+    }
+    that.showLoading = false;
+  }
+
   onLoad() {
     let that = this;
     let userInfo = wepy.getStorageSync(USER_INFO);
+    that.getUserTypeNameAsync();
     that.avatarUrl = userInfo.avatarUrl;
     that.nickName = userInfo.nickName;
   }

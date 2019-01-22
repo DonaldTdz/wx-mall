@@ -57,6 +57,7 @@ export default class Order extends wepy.page {
     currentPage: 1,
     //总页数
     page_total: 0,
+
     //是否显示 底部loading
     showLoading: true,
     //防止重复加载
@@ -76,21 +77,22 @@ export default class Order extends wepy.page {
         status: that.orderStatus,
         receiveFlg: that.receiveFlg,
         page: currentPage || 1,
-        size: size || 10,
+        size: size || 5,
         type: 1 //正常单
       }
     });
     if (json.data.success == true) {
-      console.log(json.data.result.items);
+      // console.log(json.data.result.items);
       // if (refresh) {
-      that.orderList = json.data.result.items;
+      // that.orderList = json.data.result.items;
       // } else {
-      //   that.orderList = [...that.orderList, ...json.data.list];
+      that.orderList = [...that.orderList, ...json.data.result.items];
       // }
-      that.page_total = json.data.page_total;
-      that.totalCount = json.data.totalCount;
-      console.log("条目数：" + that.totalCount);
-      if (json.data.page_total == 0) {
+      that.page_total = json.data.result.pageTotal;
+      that.totalCount = json.data.result.totalCount;
+      // console.log("条目数：" + that.totalCount);
+      // console.log("page_total" + that.page_total);
+      if (json.data.result.pageTotal == 0) {
         //暂无数据
         that.is_empty = true;
       } else {
@@ -215,10 +217,9 @@ export default class Order extends wepy.page {
 
   //加载更多
   onReachBottom() {
-    console.log("加载更多");
     let that = this;
     that.showLoading = true;
-    console.log(that.page_total + "232===" + that.currentPage);
+    console.log(that.page_total + "===" + that.currentPage);
     //判断总页数是否大于翻页数
     if (that.page_total > that.currentPage) {
       //防止重复加载
@@ -227,35 +228,53 @@ export default class Order extends wepy.page {
       }
       that.preventRepeatReuqest = true;
       that.currentPage++;
-      console.log(this.currentTab);
-      if (this.currentTab == 0) {
-        console.log("所有订单类型");
-        that.getMyOrder(that.currentPage);
-      }
-      // else if (this.currentTab == 1) {
-      //   console.log("未付款订单类型");
-      //   that.orderStatus = 0;
-      //   that.getMyOrder(that.currentPage);
-      // }
-      else if (this.currentTab == 1) {
-        console.log("待发货订单类型");
-        that.orderStatus = 1;
-        that.receiveFlg = 1;
-        that.getMyOrder(that.currentPage);
-      } else if (this.currentTab == 2) {
-        console.log("已完成订单类型");
-        that.orderStatus = 3;
-        that.getMyOrder(that.currentPage);
-      } else if (this.currentTab == 3) {
-        console.log("已取消订单类型");
-        that.orderStatus = 3;
-        that.getMyOrder(that.currentPage);
-      }
+      that.getMyOrder(that.currentPage);
       that.preventRepeatReuqest = false;
     } else {
       that.showLoading = false;
     }
   }
+  // onReachBottom() {
+  //   let that = this;
+  //   that.showLoading = true;
+  //   console.log(that.page_total + "===" + that.currentPage);
+  //   //判断总页数是否大于翻页数
+  //   if (that.page_total > that.currentPage) {
+  //     //防止重复加载
+  //     if (that.preventRepeatReuqest) {
+  //       return true;
+  //     }
+  //     that.preventRepeatReuqest = true;
+  //     that.currentPage++;
+  //     console.log("currentTab" + this.currentTab);
+  //     if (this.currentTab == 0) {
+  //       console.log("所有订单类型");
+  //       that.getMyOrder(that.currentPage);
+  //     }
+  //     // else if (this.currentTab == 1) {
+  //     //   console.log("未付款订单类型");
+  //     //   that.orderStatus = 0;
+  //     //   that.getMyOrder(that.currentPage);
+  //     // }
+  //     else if (this.currentTab == 1) {
+  //       console.log("待发货订单类型");
+  //       that.orderStatus = 1;
+  //       that.receiveFlg = 1;
+  //       that.getMyOrder(that.currentPage);
+  //     } else if (this.currentTab == 2) {
+  //       console.log("已完成订单类型");
+  //       that.orderStatus = 3;
+  //       that.getMyOrder(that.currentPage);
+  //     } else if (this.currentTab == 3) {
+  //       console.log("已取消订单类型");
+  //       that.orderStatus = 3;
+  //       that.getMyOrder(that.currentPage);
+  //     }
+  //     that.preventRepeatReuqest = false;
+  //   } else {
+  //     that.showLoading = false;
+  //   }
+  // }
 }
 </script>
 <style lang="less">

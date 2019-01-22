@@ -1,0 +1,175 @@
+<template>
+  <form bindsubmit="formSubmit">
+    <view class="section">
+      <view class="section_title">手机号</view>
+      <input
+        value="{{phone}}"
+        name="phone"
+        type="number"
+        bindinput="phoneInput"
+        placeholder="请输入手机号码"
+        maxlength="11"
+        focus="true"
+      ></input>
+    </view>
+    <view class="section">
+      <view class="section_title">身份证</view>
+      <input
+        value="{{idNumber}}"
+        name="idNumber"
+        bindinput="idNumberInput"
+        placeholder="请输入身份证号码"
+        maxlength="18"
+      ></input>
+    </view>
+
+    <view class="btn_comfire">
+      <button class="button type_yellow" formType="submit">完成</button>
+    </view>
+  </form>
+</template>
+<script>
+import wepy from "wepy";
+import api from "@/api/api";
+import dzapi from "@/api/dzapi";
+import tip from "@/utils/tip";
+import { USER_SPECICAL_INFO } from "@/utils/constant";
+
+export default class VipRegister extends wepy.page {
+  config = {
+    navigationBarTitleText: "VIP认证"
+  };
+  components = {};
+
+  data = {
+    phone: "",
+    idNumber:""
+  };
+
+  async getVipUserById() {
+    let that = this;
+    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    let openId = userSpecialInfo.openid;
+    const json = await dzapi.getVipUserById({
+      query: {
+        WxOpenId: openId
+      }
+    });
+
+    if (json.data.success == true) {
+      this.phone = json.data.result.phone;
+      this.idNumber =json.data.result.idNumber;
+      that.$apply();
+    } else {
+      tip.error(json.data.msg);
+    }
+    that.showLoading = false;
+  }
+
+  async bindVipUser(phone,idNumber) {
+    let that = this;
+    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    let openId = userSpecialInfo.openid;
+    const json = await dzapi.bindVipUser({
+      query: {
+        WxOpenId: openId,
+        Phone: phone,
+        IdNumber:idNumber
+      },
+      method: "POST"
+    });
+
+    if (json.data.success == true) {
+        if(json.data.result ==true){
+        tip.success("恭喜您认证成功!", 3000);
+        }else{
+        tip.alert("验证未通过!");
+        }
+    //   wepy.navigateBack();
+      that.$apply();
+    } else {
+      tip.error(json.data.msg);
+    }
+    that.showLoading = false;
+  }
+
+  onLoad() {
+    let that = this;
+    this.getVipUserById();
+  }
+  computed = {};
+  methods = {
+    phoneInput(e) {
+      this.phone = e.detail.value;
+    },
+    idNumberInput(e) {
+      this.idNumber = e.detail.value;
+    },
+    formSubmit(e) {
+      let that = this;
+      let phone = e.detail.value.phone;
+
+let idNumber = e.detail.value.idNumber;
+      var myreg = /^\+?[1-9][0-9]*$/;
+      var idcardReg = /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/;
+
+      if (phone == "") {
+        tip.alert("请输入手机号码");
+        return false;
+      } else if (phone.length != 11) {
+        tip.alert("手机格式不正确");
+        return false;
+      } else if (!myreg.test(phone)) {
+        tip.alert("手机格式不正确");
+        return false;
+      } else if (idNumber == "") {
+        tip.alert("请输入身份证");
+        return false;
+      } else if (idNumber.length != 18) {
+        tip.alert("身份证不正确");
+        return false;
+      } else if (!idcardReg.test(idNumber)) {
+        tip.alert("身份证不正确");
+        return false;
+      } 
+      that.bindVipUser(phone,idNumber);
+    }
+  };
+}
+</script>
+<style lang="less">
+.section {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  border-bottom: 1px solid #dbdbdb;
+  background: #fff;
+  .section_title {
+    color: #1a1a1a;
+    padding-right: 75rpx;
+  }
+  .btn {
+    padding: 15rpx 10rpx;
+    border: 1px solid #000000;
+    -moz-border-radius: 5rpx;
+    /* Firefox */
+    -webkit-border-radius: 5rpx;
+    /* Safari 和 Chrome */
+    border-radius: 5rpx;
+    /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
+    color: #000000;
+  }
+  .send_code {
+    margin-left: 40rpx;
+  }
+}
+
+.btn_comfire {
+  margin-top: 64rpx;
+  padding: 0 24rpx;
+}
+
+.code {
+  width: 300rpx;
+}
+</style>

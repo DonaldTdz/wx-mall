@@ -70,6 +70,14 @@ const getOrderInfoById = (params) => wxRequest(params, apiMall + '/api/services/
 const getOrderDetailList = (params) => wxRequest(params, apiMall + '/api/services/app/OrderDetail/GetOrderDetailListByIdAsync');
 //取消订单
 const cancelOrderById = (params) => wxRequest(params, apiMall + '/api/services/app/Order/CancelOrderByIdAsync');
+//VIP认证
+const bindVipUser = (params) => wxRequest(params, apiMall + '/api/services/app/VipUser/BindVipUser');
+//获取vip信息
+const getVipUserById = (params) => wxRequest(params, apiMall + '/api/services/app/VipUser/GetVipUserById');
+//获取用户类型
+const getUserTypeNameAsync = (params) => wxRequest(params, apiMall + '/api/services/app/WechatUser/GetUserTypeNameAsync');
+//获取Banner
+const getGoodsBanner = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetGoodsBanner');
 export default {
     wxJsCode2Session,
     getHeatGoods,
@@ -99,4 +107,8 @@ export default {
     getOrderInfoById,
     getOrderDetailList,
     cancelOrderById,
+    bindVipUser,
+    getVipUserById,
+    getUserTypeNameAsync,
+    getGoodsBanner,
 }

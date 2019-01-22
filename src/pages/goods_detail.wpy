@@ -78,7 +78,7 @@
       <view class="block_title">兑换说明</view>
       <view class="block_content">
         <view class="doc">
-          此商品在拼单期间可接收订单，如若超过拼单时间则不能下单；拼单结束后未付款订单系统将会自动取消，所以，亲下单以后请尽快付款。我们会以实际订单为准为您发货，如超过订单时间而又没有拼购到规定数量的，我们将会第一时间为您退款，请您放心购买!
+          {{exchangeInfo}}
         </view>
       </view>
     </view>
@@ -153,6 +153,7 @@ export default class goodsDetail extends wepy.page {
     navigationBarTitleText: '商品详情'
   }
   data = {
+    exchangeInfo:"",
     winWidth: 0,
     winHeight: '100%',
     goodsId: '',
@@ -278,6 +279,11 @@ export default class goodsDetail extends wepy.page {
           that.purchaseText = '商品剩余为0';
       }
       that.orderExchange = that.detail.exchangeList[0];
+      // if(that.orderExchange == "邮寄兑换"){
+      //   that.exchangeInfo= "订单提交后，营销中心以邮寄的形式将商品寄出，请注意查收";
+      // }else{
+
+      // }
     } else {
       if (json.data.error) {
         tip.error(json.data.error)
@@ -299,6 +305,7 @@ export default class goodsDetail extends wepy.page {
       }
     });
   }
+  
   computed = {}
   events = {}
   //加入购物车
