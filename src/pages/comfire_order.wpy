@@ -125,18 +125,20 @@ export default class ComfireOrder extends wepy.page {
   }
 
   async getAddressInfo(id) {
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.receiverInfoById({
+    let that = this;
+    // let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    const json = await dzapi.receiverInfoById({
       query: {
         id: id
       }
     });
-    if (json.data.code == 0) {
+    if (json.data.success == true) {
       this.is_exit_address = true;
-      this.address=json.data.receiverInfo;
+      this.address=json.data.result;
     } else {
-      tip.error(json.data.msg)
+      tip.error(json.data.error.msg)
     }
+      that.$apply();
   }
 
   onLoad(option) {
@@ -148,10 +150,11 @@ export default class ComfireOrder extends wepy.page {
     this.purchaseType = option.purchasetype==undefined?"1":option.purchasetype;
     /*that.list = bb.result.products;
     console.log(bb.result.products)*/
-    that.getOrderDetailInfo();
     let from = option.from==undefined?"":option.from;
     if (from=="selAdd") {
-      this.getAddressInfo(wepy.getStorageSync(ADDRESS_ID))
+      this.getAddressInfo(wepy.getStorageSync(ADDRESS_ID));
+    }else{
+    that.getOrderDetailInfo();
     }
   }
   computed = {
@@ -273,7 +276,7 @@ export default class ComfireOrder extends wepy.page {
       this.goToPay(fId);
     },
     setAddress() {
-      wepy.navigateTo({
+      wepy.redirectTo({
         url: "/pages/address?type=order"
       })
     }

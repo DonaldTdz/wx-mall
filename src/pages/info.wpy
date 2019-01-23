@@ -2,8 +2,8 @@
   <view class="info">
     <view class="header">
       <view class="header_content">
-        <image class="avatarUrl" src="{{avatarUrl}}">
-        <view class="nickName cfff">{{nickName}}</view>
+        <image class="avatarUrl" src="{{avatarUrl}}"/>
+        <view class="nickName cfff">{{nickName}} [{{userTypeName}}]</view>
       </view>
     </view>
     <view class="info_block">
@@ -15,42 +15,50 @@
           </view>
         </view>
         <view class="arrow">&gt;</view>
-      </navigator> -->
-            <navigator class="item" url="/pages/order">
+      </navigator>-->
+      <navigator class="item" url="/pages/order">
         <view class="item_content">
-          <image class="item_img" src="../images/icon_my_02.png">
+          <image class="item_img" src="../images/icon_my_02.png"/>
           <view class="text">我的订单</view>
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
-
       <!-- <navigator class="item" url="/pages/reorder">
         <view class="item_content">
           <image class="item_img" src="../images/icon_my_02.png">
           <view class="text">补货订单</view>
         </view>
         <view class="arrow">&gt;</view>
-      </navigator> -->
+      </navigator>-->
       <navigator class="item" url="/pages/points">
         <view class="item_content">
-          <image class="item_img" src="../images/icon_my_03.png">
+          <image class="item_img" src="../images/icon_my_03.png"/>
           <view class="text">我的积分</view>
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
       <navigator class="item" url="/pages/address">
         <view class="item_content">
-          <image class="item_img" src="../images/icon_my_04.png">
+          <image class="item_img" src="../images/icon_my_04.png"/>
           <view class="text">收货地址</view>
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
-                  <navigator class="item" url="/pages/register">
+      <navigator class="item" url="/pages/register">
         <view class="item_content">
-          <image class="item_img" src="../images/icon_my_01.png">
+          <image class="item_img" src="../images/icon_my_01.png"/>
           <view class="text">绑定手机号</view>
         </view>
-        <view class="arrow">&gt;</view>
+        <!-- <view class="" style="font-size: 13px;">{{bindPhone}}</view> -->
+        <view class="arrow">{{bindPhone}}&gt;</view>
+      </navigator>
+      <navigator class="item" url="/pages/vipRegister">
+        <view class="item_content">
+          <image class="item_img" src="../images/icon_my_05.png"/>
+          <view class="text">VIP认证</view>
+        </view>
+        <!-- <view style="font-size: 13px;float:right;">{{isVip}}</view> -->
+        <view class="arrow">{{isVip}}&gt;</view>
       </navigator>
       <!-- <navigator class="item" url="/pages/collection?type=1">
         <view class="item_content">
@@ -58,7 +66,7 @@
           <view class="text">我的收藏</view>
         </view>
         <view class="arrow">&gt;</view>
-      </navigator> -->
+      </navigator>-->
     </view>
     <!-- <view class="info_block">
       <navigator class="item" url="/pages/messages">
@@ -75,12 +83,13 @@
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
-    </view> -->
+    </view>-->
   </view>
 </template>
 <script>
 import wepy from "wepy";
 import api from "@/api/api";
+import dzapi from '@/api/dzapi';
 import { USER_INFO, USER_SPECICAL_INFO } from "@/utils/constant";
 export default class Index extends wepy.page {
   config = {
@@ -91,7 +100,10 @@ export default class Index extends wepy.page {
   data = {
     avatarUrl: "",
     nickName: "",
-    bShowBind: false
+    bShowBind: false,
+    userTypeName:"",
+    isVip:"",
+    bindPhone:""
   };
   async getUserInfo(phone, code) {
     let that = this;
@@ -116,9 +128,35 @@ export default class Index extends wepy.page {
     that.showLoading = false;
   }
 
+  async getUserTypeNameAsync() {
+    let that = this;
+    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    let openId = userSpecialInfo.openid;
+    const json = await dzapi.getUserTypeNameAsync({
+      query: {
+        WxOpenId: openId
+      }
+    });
+
+    if (json.data.success == true) {
+      this.userTypeName = json.data.result.userTypeName;
+      if(json.data.result.isVip){
+      this.isVip =json.data.result.isVip;
+      }
+      if(json.data.result.phone){
+      this.bindPhone =json.data.result.phone;
+      }
+      that.$apply();
+    } else {
+      tip.error(json.data.msg);
+    }
+    that.showLoading = false;
+  }
+
   onLoad() {
     let that = this;
     let userInfo = wepy.getStorageSync(USER_INFO);
+    that.getUserTypeNameAsync();
     that.avatarUrl = userInfo.avatarUrl;
     that.nickName = userInfo.nickName;
   }

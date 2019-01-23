@@ -36,7 +36,7 @@
       <view class="list_item">
         <view class="title">收货人电话:</view>
         <view class="input">
-          <input type="text" name="phone">
+          <input type="text" name="phone"></input>
         </view>
       </view>
       <view class="list_item">
@@ -51,7 +51,7 @@
       <view class="list_item">
         <view class="title">详细地址:</view>
         <view class="input">
-          <input type="text" name="addressDetail">
+          <input type="text" name="addressDetail"></input>
         </view>
       </view>
       <view class="list_item">
