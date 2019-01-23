@@ -77,8 +77,12 @@
     <view class="block">
       <view class="block_title">兑换说明</view>
       <view class="block_content">
-        <view class="doc">
-          {{exchangeInfo}}
+          <view class="doc" wx:if="{{orderExchange == '邮寄兑换'}}">
+          邮寄兑换：订单提交后，营销中心以邮寄的形式将商品寄出，请留意查收。
+        </view>
+           <view wx:else class="doc">
+            <view style="padding-left:30rpx;border-bottom:1px solid #efefef;padding-bottom:26rpx;">线下兑换：请前往以下直营店进行线下兑换</view>
+             <shopItem :is_empty.sync="is_empty" :list.sync="shopList" ></shopItem>
         </view>
       </view>
     </view>
@@ -147,13 +151,15 @@ import api from '@/api/api';
 import dzapi from '@/api/dzapi';
 import WxParse from "../plugins/wxParse/wxParse";
 import CommentList from "../components/comment_list"
+import ShopItem from "../components/shop_item";
 import timer from '@/components/common/timer'
 export default class goodsDetail extends wepy.page {
   config = {
     navigationBarTitleText: '商品详情'
   }
   data = {
-    exchangeInfo:"",
+    shopList: [],
+    exchangeInfo:"订单提交后，营销中心以邮寄的形式将商品寄出。并以微信推送形式将物流信息进行提醒，请注意查收。",
     winWidth: 0,
     winHeight: '100%',
     goodsId: '',
@@ -179,11 +185,13 @@ export default class goodsDetail extends wepy.page {
     canOrder: true, //是否能下单
     purchasetype: 1, //1-正常购买;2-补货
     purchaseText: "立即购买",
-    special: 0 ////0-正常入库;1-特价专区和换货专区,
+    special: 0, ////0-正常入库;1-特价专区和换货专区,
+    is_empty: false,
   }
 
   components = {
     commentList: CommentList,
+    shopItem: ShopItem,
     timer:timer
   }
   onLoad(option) {
@@ -212,6 +220,7 @@ export default class goodsDetail extends wepy.page {
     }*/
     that.getGoodsDetail();
     that.addUserBrowser();
+    that.getShop();
     console.log("special===" + this.special);
   }
   onShow() {
@@ -279,10 +288,14 @@ export default class goodsDetail extends wepy.page {
           that.purchaseText = '商品剩余为0';
       }
       that.orderExchange = that.detail.exchangeList[0];
-      // if(that.orderExchange == "邮寄兑换"){
-      //   that.exchangeInfo= "订单提交后，营销中心以邮寄的形式将商品寄出，请注意查收";
-      // }else{
-
+      // if(that.orderExchange != "邮寄兑换"){
+      //   that.getShop();
+      //   let here = that;
+      //   if (json.data.success == true) {
+      //  that.shopList = json.data.result;
+      //  console.log(that.shopList);
+      //  here.$apply();
+      // }
       // }
     } else {
       if (json.data.error) {
@@ -305,7 +318,20 @@ export default class goodsDetail extends wepy.page {
       }
     });
   }
-  
+
+  async getShop() {
+    let that = this;
+    const json = await dzapi.getShop({
+      query: {
+      }
+    });
+        if (json.data.success == true) {
+      that.shopList = json.data.result;
+      that.$apply();
+    } else {
+      tip.error(json.data.msg);
+    }
+  }
   computed = {}
   events = {}
   //加入购物车

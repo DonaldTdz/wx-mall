@@ -78,6 +78,8 @@ const getVipUserById = (params) => wxRequest(params, apiMall + '/api/services/ap
 const getUserTypeNameAsync = (params) => wxRequest(params, apiMall + '/api/services/app/WechatUser/GetUserTypeNameAsync');
 //获取Banner
 const getGoodsBanner = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetGoodsBanner');
+//获取直营店信息
+const getShop = (params) => wxRequest(params, apiMall + '/api/services/app/Shop/GetShopAddressAsync');
 export default {
     wxJsCode2Session,
     getHeatGoods,
@@ -111,4 +113,5 @@ export default {
     getVipUserById,
     getUserTypeNameAsync,
     getGoodsBanner,
+    getShop,
 }

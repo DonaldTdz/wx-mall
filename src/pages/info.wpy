@@ -49,14 +49,16 @@
           <image class="item_img" src="../images/icon_my_01.png"/>
           <view class="text">绑定手机号</view>
         </view>
-        <view class="arrow">&gt;</view>
+        <!-- <view class="" style="font-size: 13px;">{{bindPhone}}</view> -->
+        <view class="arrow">{{bindPhone}}&gt;</view>
       </navigator>
       <navigator class="item" url="/pages/vipRegister">
         <view class="item_content">
           <image class="item_img" src="../images/icon_my_05.png"/>
           <view class="text">VIP认证</view>
         </view>
-        <view class="arrow">&gt;</view>
+        <!-- <view style="font-size: 13px;float:right;">{{isVip}}</view> -->
+        <view class="arrow">{{isVip}}&gt;</view>
       </navigator>
       <!-- <navigator class="item" url="/pages/collection?type=1">
         <view class="item_content">
@@ -99,7 +101,9 @@ export default class Index extends wepy.page {
     avatarUrl: "",
     nickName: "",
     bShowBind: false,
-    userTypeName:""
+    userTypeName:"",
+    isVip:"",
+    bindPhone:""
   };
   async getUserInfo(phone, code) {
     let that = this;
@@ -136,6 +140,12 @@ export default class Index extends wepy.page {
 
     if (json.data.success == true) {
       this.userTypeName = json.data.result.userTypeName;
+      if(json.data.result.isVip){
+      this.isVip =json.data.result.isVip;
+      }
+      if(json.data.result.phone){
+      this.bindPhone =json.data.result.phone;
+      }
       that.$apply();
     } else {
       tip.error(json.data.msg);

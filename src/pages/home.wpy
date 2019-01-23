@@ -163,7 +163,7 @@ export default class Home extends wepy.page {
     // },
       goToAdvert(id) {
       // console.log("url===" + id);
-      if (id.length == 0) {
+      if (!id) {
         return;
       }
       wepy.navigateTo({

@@ -7,7 +7,7 @@
         name="phone"
         type="number"
         bindinput="phoneInput"
-        placeholder="请输入手机号码"
+        placeholder="{{showPhone}}"
         maxlength="11"
         focus="true"
       ></input>
@@ -24,7 +24,7 @@
     </view>
 
     <view class="btn_comfire">
-      <button class="button type_yellow" formType="submit">完成</button>
+      <button class="button type_yellow" formType="submit">提交认证</button>
     </view>
   </form>
 </template>
@@ -43,7 +43,8 @@ export default class VipRegister extends wepy.page {
 
   data = {
     phone: "",
-    idNumber:""
+    idNumber:"",
+    showPhone:"请输入手机号码"
   };
 
   async getVipUserById() {
@@ -57,8 +58,10 @@ export default class VipRegister extends wepy.page {
     });
 
     if (json.data.success == true) {
-      this.phone = json.data.result.phone;
-      this.idNumber =json.data.result.idNumber;
+      if(json.data.result.phone){
+      this.showPhone = json.data.result.phone;
+      }
+      // this.idNumber =json.data.result.idNumber;
       that.$apply();
     } else {
       tip.error(json.data.msg);
