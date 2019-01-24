@@ -136,7 +136,7 @@ export default class OrderDetail extends wepy.page {
     let that = this;
     const json = await dzapi.getOrderDetailList({
       query: {
-        OrderId: orderId
+        OrderId: this.orderId
       }
     });
     if (json.data.success == true) {
@@ -155,7 +155,7 @@ export default class OrderDetail extends wepy.page {
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     const json = await dzapi.getOrderInfoById({
       query: {
-        OrderId: orderId
+        OrderId: this.orderId
         // flag: flag
       }
     });
@@ -195,9 +195,17 @@ export default class OrderDetail extends wepy.page {
       // if (this.flag == 2) {
       //   //删除
       // }
-      getOrderInfoById(orderId);
-      getOrderDetailList(orderId);
-      tip.success("订单取消成功!", 3000);
+      this.getOrderInfoById(orderId);
+      this.getOrderDetailList(orderId);
+      if (this.obj.code == 0) {
+        tip.success("订单取消成功!", 3000);
+      } else if (this.obj.code == 1) {
+        tip.alert("商品已邮寄!", 3000);
+        this.getOrderInfoById(orderId);
+        this.getOrderDetailList(orderId);
+      } else if (this.obj.code == 3) {
+        tip.success("订单取消成功!", 3000);
+      }
     } else {
       tip.error(json.data.msg);
     }

@@ -116,8 +116,8 @@ export default class ComfireOrder extends wepy.page {
       this.list = data.items;
       this.totalPrice = data.totalPrice;
       this.canUsePrice = data.integral;
-      this.is_exit_address = data.isExitAddress;
-      this.address = data.defaultAddress;
+      // this.is_exit_address = data.isExitAddress;
+      // this.address = data.defaultAddress;
     } else {
       tip.error(json.data.error.msg)
     }
@@ -150,12 +150,14 @@ export default class ComfireOrder extends wepy.page {
     this.purchaseType = option.purchasetype==undefined?"1":option.purchasetype;
     /*that.list = bb.result.products;
     console.log(bb.result.products)*/
+        that.getOrderDetailInfo();
+
     let from = option.from==undefined?"":option.from;
     if (from=="selAdd") {
       this.getAddressInfo(wepy.getStorageSync(ADDRESS_ID));
-    }else{
-    that.getOrderDetailInfo();
     }
+    // else{
+    // }
   }
   computed = {
 
@@ -268,7 +270,7 @@ export default class ComfireOrder extends wepy.page {
       var fId = e.detail.formId;
       if (!this.is_exit_address) {
         await tip.confirm('你未设置收货地址，请设置地址');
-        wepy.navigateTo({
+        wepy.redirectTo({
           url: "/pages/address?type=order"
         })
         return false;
