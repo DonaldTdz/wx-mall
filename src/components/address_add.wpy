@@ -30,7 +30,7 @@
       <view class="list_item">
         <view class="title">收货人姓名:</view>
         <view class="input">
-          <input type="text" name="name" value=""></input>
+          <input type="text" name="name" value="" />
         </view>
       </view>
       <view class="list_item">
