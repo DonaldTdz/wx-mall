@@ -79,7 +79,7 @@
         <view
           class="btn"
           @tap="cancelOrder"
-          wx:if="{{obj.status =='2' &&isCancel}}"
+          wx:if="{{obj.status =='2' && isCancel}}"
           data-id="{{obj.orderId}}"
         >取消订单</view>
         <!-- <view

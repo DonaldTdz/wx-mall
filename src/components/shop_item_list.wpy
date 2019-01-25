@@ -6,33 +6,20 @@
       </view>
       <view class="goods" style="width: 70%;">
         <view class="product_name" style="text-align:left;">{{item.specification}}</view>
-        <view class="product_rule">单位：{{item.unit}} *{{item.num}} 丨 兑换方式：{{item.exchangeCodeName}}丨{{item.statusName}}</view>
+        <view class="product_rule">{{item.exchangeCodeName}}丨<text class="{{item.status==1? 'no_exchange':'exchange'}}">{{item.statusName}}</text></view>
         <view class="product_info">
           <view class="price">积分：{{item.integral}}</view>
-          <!-- <view class="goods_num">状态：{{item.statusName}}</view> -->
+          <view class="goods_num">x{{item.num}}{{item.unit}}</view>
         </view>
         <view class="product_rule"  wx:if="{{item.status==2 && item.exchangeCode ==2}}">
-                    <view class="goods_num">兑换时间：{{item.exchangeTimeFormat}}</view>
+            <view>兑换时间：{{item.exchangeTimeFormat}}</view>
         </view>
-   <view class="product_rule"  wx:if="{{item.status==2 && item.exchangeCode ==2}}">
-                    <view class="goods_num">物流信息：{{item.logisticsCompany}}({{item.logisticsNo}})</view>
+        <view class="product_rule"  wx:if="{{item.status==2 && item.exchangeCode ==2}}">
+            <view>物流信息：{{item.logisticsCompany}}({{item.logisticsNo}})</view>
         </view>
-        <!-- <view class="order_footer">
-          <view class="btn_group">
-            <view
-              class="btn btn_del"
-              @tap.stop="refund"
-              data-id="{{item.id}}"
-              wx:if="{{item.status==4 && item.refundStatus==0}}"
-            >申请退货</view>
-          </view>
-          <view class="order_state" wx:if="{{item.refundStatus==1}}">
-            <view>退货中</view>
-          </view>
-          <view class="order_state" wx:if="{{item.refundStatus==2}}">
-            <view>退款成功</view>
-          </view>
-        </view> -->
+        <view class="product_rule"  wx:if="{{item.status==2 && item.exchangeCode == 1}}">
+            <view>兑换店铺：{{item.shopName}}({{item.shopAddress}})</view>
+        </view>
       </view>
     </view>
   </repeat>
@@ -57,55 +44,13 @@ export default class ShopItemList extends wepy.component {
     //   console.log(`${this.$name} receive ${$event.name} from ${$event.source.name}`)
     // }
   };
-
-  async applyRefund(itemId) {
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-
-    const json = await api.refundApply({
-      query: {
-        openId: openId,
-        orderItemId: itemId
-      }
-    });
-    if (json.data.code == 0) {
-      wx.showModal({
-        title: "提示",
-        content: "你的退货申请已提交,等待审批!",
-        showCancel: false,
-        success: function(res) {
-          if (res.confirm) {
-          } else if (res.cancel) {
-          }
-        }
-      });
-    } else {
-      tip.error(json.data.msg);
-    }
-  }
-
   methods = {
     refreshList(val) {
       if (val == undefined) return;
       console.log("val.....", val);
       this.list = val;
       this.$apply();
-    },
-    refund(e) {
-      let itemId = e.currentTarget.dataset.id;
-      let that = this;
-      wx.showModal({
-        title: "提示",
-        content: "确定要退货吗?",
-        success: function(res) {
-          if (res.confirm) {
-            that.applyRefund(itemId);
-          } else if (res.cancel) {
-            console.log("用户点击取消");
-          }
-        }
-      });
-    }
+    } 
   };
 
   onLoad() {
@@ -197,4 +142,15 @@ export default class ShopItemList extends wepy.component {
 .cost_price {
   padding-left: 20rpx;
 }
+
+ .no_exchange {
+    color: #ff4856;
+  }
+
+  .exchange {
+    color: #52c41a;
+  }
+  .goods_num {
+    color: #ff4856;
+  }
 </style>
