@@ -18,13 +18,13 @@
               <!--  -->
               <view class="lable">
                 <view class="goods-lable">["{{item.categoryName}}","{{item.exchangeCodeDesc}}"]</view>
-                <view class="goods-lable" wx:if="{{item.isAction && item.stock !== null && item.stock > 0}}" >库存{{item.stock}}{{item.unit}}</view>
+                <view class="goods-lable" wx:if="{{item.isAction && item.stock != null && item.stock > 0}}" >库存{{item.stock}}{{item.unit}}</view>
                 <view class="bo-label" wx:if="{{!item.isAction}}">已下架</view>
-                <view class="bo-label" wx:if="{{item.stock === 0}}">已售完</view>
+                <view class="bo-label" wx:if="{{item.num == 0}}">已售完</view>
               </view>
               <view class="goods-price">{{item.integral}} 积分</view>
               <view class="buy-num">
-                <view class="jian-btn {{item.num==1 || !item.ischecked? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
+                <view class="jian-btn {{item.num <= 1 || !item.ischecked? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
                 <input type="number" value="{{item.num}}" disabled/>
                 <view class="jia-btn {{(item.stock != null && item.num>=item.stock) || !item.ischecked? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
               </view>
@@ -89,7 +89,7 @@
       });
       if (json.data.success == true) {
         let data = json.data.result;
-        console.log(JSON.stringify(data));
+        //console.log(JSON.stringify(data));
         
         this.list = data.items;
         this.totalPrice = data.totalPrice;
@@ -115,7 +115,7 @@
     }
     computed = {}
     async checkGoods(id, index, ischecked) {
-      if(this.list[index].isAction == true && this.list[index].stock !== 0) {
+      if(this.list[index].isAction == true && this.list[index].num != 0) {
           //let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
           //let openId = userSpecialInfo.openid;
           const json = await dzapi.getCheckCartGoods({
@@ -127,17 +127,16 @@
             const newGoods = json.data.result//获取最新的数据状态
             this.list[index].isAction = newGoods.isAction;//是否下架
             this.list[index].stock = newGoods.stock; //库存
-            if(this.list[index].isAction == true && this.list[index].stock !== 0){
+            this.list[index].num = newGoods.num;
+            this.list[index].integral = newGoods.integral;
+            if(this.list[index].isAction == true && this.list[index].num != 0){
               if(ischecked){
                 this.allChecked = false;
               }
               // 购物车数据
               this.list[index].ischecked = !ischecked;
               if (this.list[index].ischecked) {//启用
-                if(this.list[index].num > this.list[index].stock){//如果大于库存
-                  this.list[index].num = this.list[index].stock; 
-                  this.list[index].priceSubtotal = parseInt(this.list[index].num*this.list[index].integral);
-                }
+                this.list[index].priceSubtotal = parseInt(this.list[index].num*this.list[index].integral);
                 this.totalPrice += parseInt(this.list[index].priceSubtotal);
               } else {
                 this.totalPrice -= parseInt(this.list[index].priceSubtotal);
@@ -230,36 +229,20 @@
     }
 
     async checkAllGoods() {
-      /*let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      let check = 0;
-      if (!this.allChecked) {//原来未选中
-        check = 1;
+      this.totalPrice = 0;
+      for (var i = 0; i < this.list.length; i++) {
+          //如果购买数量为0 或 已下架
+          //console.log('this.list[i].num:'+this.list[i].num + ' this.list[i].isAction:' + this.list[i].isAction)
+          if(this.list[i].num == 0 || !this.list[i].isAction){
+            continue;
+          } else{
+            this.list[i].ischecked = !this.allChecked;
+            if (this.list[i].ischecked) {
+              this.totalPrice += parseInt(this.list[i].priceSubtotal);
+            }    
+          } 
       }
-      const json = await api.cartCheckAll({
-        query: {
-          openId: openId,
-          check: check
-        }
-      });
-      if (json.data.code == 0) {*/
-        this.totalPrice = 0;
-        for (var i = 0; i < this.list.length; i++) {
-           //如果库存为0 或 已下架
-           if((this.list[i].stock != null && this.list[i].stock == 0) || !this.list[i].isAction){
-              break;
-            }
-            else{
-              this.list[i].ischecked = !this.allChecked;
-              if (!this.allChecked) {
-                this.totalPrice += parseInt(this.list[i].priceSubtotal);
-              }
-            } 
-        }
-        this.allChecked = !this.allChecked;
-      /*} else {
-        tip.error(json.data.msg)
-      }*/
+      this.allChecked = !this.allChecked;
       this.$apply();
     }
 
@@ -299,7 +282,7 @@
         var index = parseInt(e.currentTarget.dataset.index);
         var num = this.list[index].num;
         // 如果只有1件了 和 没有选中，就不允许再减了
-        if(num == 1 || !this.list[index].ischecked) {
+        if(num <= 1 || !this.list[index].ischecked) {
           return;
         } else {
           num--;
@@ -320,8 +303,8 @@
         var id = e.currentTarget.dataset.id;
         var index = parseInt(e.currentTarget.dataset.index);
         var num = this.list[index].num;
-        console.log('index:' + index);
-        console.log('this.list[index]:'+ JSON.stringify(this.list[index]));
+        //console.log('index:' + index);
+        //console.log('this.list[index]:'+ JSON.stringify(this.list[index]));
         //超过库存限制 和 没选中就不用加了
         if((this.list[index].stock != null && num>=this.list[index].stock) || !this.list[index].ischecked){
           return;

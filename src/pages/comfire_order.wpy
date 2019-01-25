@@ -116,8 +116,14 @@ export default class ComfireOrder extends wepy.page {
       this.list = data.items;
       this.totalPrice = data.totalPrice;
       this.canUsePrice = data.integral;
-      // this.is_exit_address = data.isExitAddress;
-      // this.address = data.defaultAddress;
+      const addid = wepy.getStorageSync(ADDRESS_ID);
+      //console.log('addid:'+addid);
+      if(addid){
+        this.getAddressInfo(addid);
+      } else {
+        this.is_exit_address = data.isExitAddress;
+        this.address = data.defaultAddress;
+      }
     } else {
       tip.error(json.data.error.msg)
     }
@@ -134,11 +140,13 @@ export default class ComfireOrder extends wepy.page {
     });
     if (json.data.success == true) {
       this.is_exit_address = true;
-      this.address=json.data.result;
+      this.address = json.data.result;
+      //清除缓存 下次进入恢复默认
+      wepy.removeStorageSync(ADDRESS_ID);
     } else {
       tip.error(json.data.error.msg)
     }
-      that.$apply();
+    that.$apply();
   }
 
   onLoad(option) {
@@ -150,12 +158,12 @@ export default class ComfireOrder extends wepy.page {
     this.purchaseType = option.purchasetype==undefined?"1":option.purchasetype;
     /*that.list = bb.result.products;
     console.log(bb.result.products)*/
-        that.getOrderDetailInfo();
+    that.getOrderDetailInfo();
 
-    let from = option.from==undefined?"":option.from;
-    if (from=="selAdd") {
-      this.getAddressInfo(wepy.getStorageSync(ADDRESS_ID));
-    }
+    //let from = option.from==undefined?"":option.from;
+    //if (from=="selAdd") {
+    //  this.getAddressInfo(wepy.getStorageSync(ADDRESS_ID));
+    //}
     // else{
     // }
   }
@@ -278,9 +286,12 @@ export default class ComfireOrder extends wepy.page {
       this.goToPay(fId);
     },
     setAddress() {
+      /*wepy.redirectTo({
+        url: "/pages/address?type=order"
+      })*/
       wepy.redirectTo({
         url: "/pages/address?type=order"
-      })
+      });
     }
   }
   events = {

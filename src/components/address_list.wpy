@@ -114,6 +114,12 @@ export default class AddressList extends wepy.component {
       wepy.redirectTo({
         url: "/pages/comfire_order?from=selAdd"
       });
+      //console.log(getCurrentPages());
+      
+      //var num = parseInt(getCurrentPages().length) - 1;
+      //console.log('num:' + num);
+      
+      //wepy.navigateBack({ delta: 1 });
     }
   };
 
