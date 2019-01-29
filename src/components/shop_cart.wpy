@@ -58,7 +58,7 @@
 
 <script>
   import wepy from 'wepy';
-  import api from '@/api/api';
+  // import api from '@/api/api';
   import dzapi from '@/api/dzapi';
   import tip from '@/utils/tip';
   import {

@@ -2,7 +2,9 @@
 <template>
   <view class="pay_success">
     <view class="icon">
-      <view><i class="iconfont icon-success"></i></view>
+      <view>
+        <i class="iconfont icon-success"></i>
+      </view>
       <view class="success_doc">恭喜支付成功</view>
     </view>
     <view class="pay_money">
@@ -21,67 +23,56 @@
   </view>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '@/api/api';
-import {
-  SYSTEM_INFO,
-  USER_SPECICAL_INFO
-} from '@/utils/constant';
-import tip from '@/utils/tip'
+import wepy from "wepy";
+// import api from '@/api/api';
+import { SYSTEM_INFO, USER_SPECICAL_INFO } from "@/utils/constant";
+import tip from "@/utils/tip";
 export default class paySuccess extends wepy.page {
   config = {
-    navigationBarTitleText: '支付成功',
-  }
+    navigationBarTitleText: "支付成功"
+  };
   data = {
-    orderNo : "",
+    orderNo: "",
     totalFee: 0
-  }
-  components = {
+  };
+  components = {};
+  // async getPayOrderDetail() {
+  //   let that = this;
+  //   const json = await api.getPayOrderDetail({
+  //     query: {
+  //       tradeNo: this.orderNo
+  //     }
+  //   });
+  //   if (json.data.code == 0) {
+  //     this.totalFee = json.data.order.totalFee;
+  //   } else {
+  //     tip.error(json.data.msg)
+  //   }
 
-  }
-  async getPayOrderDetail() {
-    let that = this;
-    const json = await api.getPayOrderDetail({
-      query: {
-        tradeNo: this.orderNo
-      }
-    });
-    if (json.data.code == 0) {
-      this.totalFee = json.data.order.totalFee;
-    } else {
-      tip.error(json.data.msg)
-    }
-
-    that.$apply();
-  }
+  //   that.$apply();
+  // }
   onLoad(option) {
     //tip.success('支付成功,接收的参数为' + option.orderNo);
     this.orderNo = option.orderNo;
     this.totalFee = option.totalFee;
     //this.getPayOrderDetail();
   }
-  computed = {
-
-  }
+  computed = {};
   methods = {
     goOrderDetail() {
       wepy.redirectTo({
         url: "/pages/order"
-      })
+      });
     },
     goIndex() {
       wepy.switchTab({
         url: "/pages/home"
-      })
+      });
     }
-  }
+  };
 
-  events = {
-
-  }
-
+  events = {};
 }
-
 </script>
 <style lang="less">
 .pay_success {
@@ -150,5 +141,4 @@ export default class paySuccess extends wepy.page {
     }
   }
 }
-
 </style>

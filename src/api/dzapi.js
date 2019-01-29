@@ -3,7 +3,8 @@ import {
 } from '@/utils/wxRequest';
 
 let env = "-test" //-dev 或者 -test
-const apiMall = 'http://localhost:21021/'
+// const apiMall = 'http://localhost:21021/'
+const apiMall = 'http://hcwx.sayequ.me'
 
 //微信的jscode换取sessionKey
 const wxJsCode2Session = (params) => wxRequest(params, apiMall + "/api/services/app/Wechat/GetJsCode2Session"); //已替换
@@ -80,6 +81,8 @@ const getUserTypeNameAsync = (params) => wxRequest(params, apiMall + '/api/servi
 const getGoodsBanner = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetGoodsBanner');
 //获取直营店信息
 const getShop = (params) => wxRequest(params, apiMall + '/api/services/app/Shop/GetShopAddressAsync');
+
+const getExchangeQrCode = (params) => wxRequest(params, apiMall + '/api/services/app/Order/GetExchangeQrCode');
 export default {
     wxJsCode2Session,
     getHeatGoods,
@@ -114,4 +117,5 @@ export default {
     getUserTypeNameAsync,
     getGoodsBanner,
     getShop,
+    getExchangeQrCode,
 }

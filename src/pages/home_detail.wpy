@@ -2,12 +2,16 @@
 <template>
   <view class="item">
     <view class="img_box">
-      <image class="discover_img" src="{{cate.logo}}"></image>
+      <image class="discover_img" src="{{cate.logo}}"/>
     </view>
     <view class="info">
       <view class="title">{{cate.name}}</view>
       <view wx:for="{{cate.attrs}}" wx:key="item">
-        <view class="doc"><i class="lx">◆</i> {{item.attrName.attrName}}：<view wx:for="{{item.attrValList}}" wx:key="item">{{item.attrVal}} </view></view>
+        <view class="doc">
+          <i class="lx">◆</i>
+          {{item.attrName.attrName}}：
+          <view wx:for="{{item.attrValList}}" wx:key="item">{{item.attrVal}}</view>
+        </view>
       </view>
     </view>
   </view>
@@ -24,21 +28,21 @@
   </view>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '@/api/api';
-import FilterBar from "../components/filter_bar"
-import ShopGridList from '@/components/shop_grid_list'
-import BottomLoadMore from "../components/common/bottomLoadMore"
-import Placeholder from "../components/common/placeholder"
-import tip from '@/utils/tip'
+import wepy from "wepy";
+// import api from '@/api/api';
+import FilterBar from "../components/filter_bar";
+import ShopGridList from "@/components/shop_grid_list";
+import BottomLoadMore from "../components/common/bottomLoadMore";
+import Placeholder from "../components/common/placeholder";
+import tip from "@/utils/tip";
 
 export default class HomeDetail extends wepy.page {
   config = {
-    navigationBarTitleText: '',
-  }
+    navigationBarTitleText: ""
+  };
   data = {
     catCode: "",
-    cate:{},
+    cate: {},
     list: [],
     purchasetype: 1,
     is_empty: false,
@@ -52,44 +56,44 @@ export default class HomeDetail extends wepy.page {
     preventRepeatReuqest: false,
     sort: 1,
     skuval: ""
-  }
+  };
   components = {
     filterBar: FilterBar,
     shopGridList: ShopGridList,
     bottomLoadMore: BottomLoadMore,
     placeholder: Placeholder
-  }
+  };
 
-  async getGoodList(currentPage, size) {
-    let that = this;
-    //const json = await api.getGoodsList({
-    const json = await api.hostGoodsList({
-      query: {
-        page: currentPage || 1,
-        size: size || 10,
-        cateCode: this.catCode,
-        sort: this.sort,
-        skuval: this.skuval
-      }
-    });
-    if (json.data.code == 0) {
-      that.cate = json.data.category;
-      wx.setNavigationBarTitle({  title: that.cate.name})
-      that.list = [...that.list, ...json.data.list];
-      that.page_total = json.data.page_total;
-      if (json.data.page_total == 0) {
-        //暂无数据
-        that.is_empty = true;
-      }
-    } else {
-      tip.error(json.data.msg);
-    }
-    that.showLoading = false;
-    that.$apply();
-  }
+  // async getGoodList(currentPage, size) {
+  //   let that = this;
+  //   //const json = await api.getGoodsList({
+  //   const json = await api.hostGoodsList({
+  //     query: {
+  //       page: currentPage || 1,
+  //       size: size || 10,
+  //       cateCode: this.catCode,
+  //       sort: this.sort,
+  //       skuval: this.skuval
+  //     }
+  //   });
+  //   if (json.data.code == 0) {
+  //     that.cate = json.data.category;
+  //     wx.setNavigationBarTitle({  title: that.cate.name})
+  //     that.list = [...that.list, ...json.data.list];
+  //     that.page_total = json.data.page_total;
+  //     if (json.data.page_total == 0) {
+  //       //暂无数据
+  //       that.is_empty = true;
+  //     }
+  //   } else {
+  //     tip.error(json.data.msg);
+  //   }
+  //   that.showLoading = false;
+  //   that.$apply();
+  // }
 
   onLoad(option) {
-    this.cate={};
+    this.cate = {};
     this.list = [];
     this.skuval = "";
     this.catCode = option.code;
@@ -103,30 +107,28 @@ export default class HomeDetail extends wepy.page {
     //防止重复加载
     this.preventRepeatReuqest = false;
     this.sort = 1;
-    console.log("id==="+this.catCode);
+    console.log("id===" + this.catCode);
     //this.list = bb.result.products;
     //this.$apply();
     this.getGoodList();
   }
-  computed = {
-
-  }
+  computed = {};
   methods = {
     currentType(obj) {
       //tip.success("状态:" + obj);
       var name = obj.name;
       var type = obj.type;
-      if (name=="zhonghe") {
+      if (name == "zhonghe") {
         this.sort = -1;
-      } else if (name=="sale") {
+      } else if (name == "sale") {
         this.sort = 3;
-      } else if (name=="price") {
-        if (type=="desc") {
+      } else if (name == "price") {
+        if (type == "desc") {
           this.sort = 2;
-        } else if (type=="asc") {
+        } else if (type == "asc") {
           this.sort = 1;
         }
-      }else if (name == "sku") {
+      } else if (name == "sku") {
         this.skuval = type;
       }
       this.list = [];
@@ -134,34 +136,32 @@ export default class HomeDetail extends wepy.page {
       this.is_empty = false;
       this.getGoodList();
     },
-    onShareAppMessage: function (res) {
-      if (res.from === 'button') {
+    onShareAppMessage: function(res) {
+      if (res.from === "button") {
         // 来自页面内转发按钮
-        console.log(res.target)
+        console.log(res.target);
       }
       return {
         title: this.cate.name,
-        path: '/pages/home_detail?code='+this.catCode,
+        path: "/pages/home_detail?code=" + this.catCode,
         success: function(res) {
           // 转发成功
         },
         fail: function(res) {
           // 转发失败
         }
-      }
+      };
     }
-  }
+  };
 
-  events = {
-
-  }
+  events = {};
   //加载更多
   onReachBottom() {
     let that = this;
     that.showLoading = true;
     console.log(that.page_total + "===" + that.currentPage);
     //判断总页数是否大于翻页数
-    if ((that.page_total) > that.currentPage) {
+    if (that.page_total > that.currentPage) {
       //防止重复加载
       if (that.preventRepeatReuqest) {
         return true;
@@ -173,9 +173,8 @@ export default class HomeDetail extends wepy.page {
     } else {
       that.showLoading = false;
     }
-  };
+  }
 }
-
 </script>
 <style lang="less">
 page {
@@ -211,5 +210,4 @@ page {
     }
   }
 }
-
 </style>

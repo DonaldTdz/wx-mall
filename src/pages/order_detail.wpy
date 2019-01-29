@@ -70,7 +70,27 @@
         <text class="title">付款时间:</text>
         <text class="content">{{obj.payedTime}}</text>
       </view>-->
+        <view wx:if="{{obj.status == 2}}" style="text-align:center;">
+                <image @tap="changeQrCode"
+        style="width: 200px; height: 200px; background-color: #eeeeee;"
+        mode="scaleToFill"
+        src="{{qrCode}}"
+      />
+          </view>
+            <view wx:if="{{obj.status == 2}}" style="text-align:center;">
+                 <text>兑换码五分钟内有效，失效请点击兑换码重新生成</text>
+          </view>
+
+                <view class="item">
+        <!-- <text class="title">订单备注：</text> -->
+        <!-- <text class="content">{{obj.remark}}</text> -->
+      </view>
+                      <view class="item">
+        <!-- <text class="title">订单备注：</text> -->
+        <!-- <text class="content">{{obj.remark}}</text> -->
+      </view>
     </view>
+
     <view class="footer">
       <view class="money">订单总积分：
         <text class="receive_money">{{obj.integral}}积分</text>
@@ -115,7 +135,7 @@
 import wepy from "wepy";
 import tip from "@/utils/tip";
 import ShopItemList from "@/components/shop_item_list";
-import api from "@/api/api";
+// import api from "@/api/api";
 import dzapi from "@/api/dzapi";
 import { SYSTEM_INFO, USER_SPECICAL_INFO } from "@/utils/constant";
 export default class OrderDetail extends wepy.page {
@@ -124,6 +144,7 @@ export default class OrderDetail extends wepy.page {
   };
   data = {
     obj: {},
+    qrCode: "",
     id: "",
     flag: "",
     list: [],
@@ -131,6 +152,25 @@ export default class OrderDetail extends wepy.page {
     orderExpress: {},
     expressFlowInfo: {}
   };
+
+  async getExchangeQrCode(orderNo) {
+    let that = this;
+    const json = await dzapi.getExchangeQrCode({
+      query: {
+        orderNo: orderNo
+      }
+    });
+    if (json.data.success == true) {
+    var time = new Date().getTime();
+    that.$apply(function () {
+    this.qrCode = json.data.result + '?' + time;  //增加随机参数时间可强制刷新
+}); 
+      // this.qrCode = json.data.result;
+    } else {
+      tip.error(json.data.msg);
+    }
+    // this.$apply();
+  }
 
   async getOrderDetailList(orderId) {
     let that = this;
@@ -160,7 +200,11 @@ export default class OrderDetail extends wepy.page {
       }
     });
     if (json.data.success == true) {
-      this.obj = json.data.result;
+      this.obj = json.data.result;     
+      if(this.obj.status == 2){
+        console.log('111');
+      this.getExchangeQrCode(this.obj.id);
+      }
       /*that.list = [...that.list, ...json.data.errerTips.orderItemList];
       that.$invoke('shopItemList', 'refreshList', that.list);
       console.log(json.data.errerTips.orderItemList);
@@ -242,6 +286,8 @@ export default class OrderDetail extends wepy.page {
     this.orderId = options.orderId;
     that.getOrderDetailList(this.orderId);
     that.getOrderInfoById(this.orderId);
+    // if(this.obj.number)
+    // that.getExchangeQrCode(this.obj.number);
     // that.getOrderExpressInfo();
     // console.log(bb.result.products);
     console.log("=========options==========");
@@ -254,6 +300,12 @@ export default class OrderDetail extends wepy.page {
       await tip.confirm("是否取消订单");
       this.cancelOrderById(this.orderNo, this.flag);
       console.log("删除成功");
+    },
+      async  changeQrCode() {
+      let that = this;
+      if(this.obj.id)
+      that.getExchangeQrCode(this.obj.id);
+      console.log("更新二维码");
     }
     // async completion(e) {
     //   this.flag = 3;

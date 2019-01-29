@@ -5,45 +5,47 @@
 }
 </style>
 <template>
-<view class="collection">
-  <!--tab模块-->
-  <view class="tab_box">
-  <tab @currentTab.user="getCurrentTab" :currentTab.sync="currentTab" :tabList.sync="tabList" ></tab>
+  <view class="collection">
+    <!--tab模块-->
+    <view class="tab_box">
+      <tab @currentTab.user="getCurrentTab" :currentTab.sync="currentTab" :tabList.sync="tabList"></tab>
+    </view>
+    <scroll-view
+      scroll-y="true"
+      class="swiper-item-box"
+      style="height:{{winHeight - 31}}px"
+      bindscrolltolower="onReachBottom"
+    >
+      <!-- 我的足迹 -->
+      <collectionList :list.sync="browselist" wx:if="{{currentTab==0}}"></collectionList>
+      <!-- 我的收藏 -->
+      <collectionList :list.sync="favorlist" wx:if="{{currentTab==1}}"></collectionList>
+    </scroll-view>
   </view>
-  <scroll-view scroll-y="true" class="swiper-item-box" style="height:{{winHeight - 31}}px" bindscrolltolower="onReachBottom">
-  <!-- 我的足迹 -->
-  <collectionList :list.sync="browselist" wx:if="{{currentTab==0}}"></collectionList>
-  <!-- 我的收藏 -->
-  <collectionList :list.sync="favorlist" wx:if="{{currentTab==1}}"></collectionList>
-  </scroll-view>
-  </view>
-  </template>
+</template>
   <!--加载更多时动画-->
   <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
   <script>
-  import wepy from 'wepy';
-import api from '@/api/api';
-import Tab from '@/components/tab'
-import CollectionList from '@/components/collection_list'
-import BottomLoadMore from "../components/common/bottomLoadMore"
-import {
-  SYSTEM_INFO,
-  USER_SPECICAL_INFO
-} from '@/utils/constant';
+import wepy from "wepy";
+// import api from '@/api/api';
+import Tab from "@/components/tab";
+import CollectionList from "@/components/collection_list";
+import BottomLoadMore from "../components/common/bottomLoadMore";
+import { SYSTEM_INFO, USER_SPECICAL_INFO } from "@/utils/constant";
 
 export default class PointsRules extends wepy.page {
   config = {
-    navigationBarTitleText: "",
-  }
+    navigationBarTitleText: ""
+  };
   components = {
     tab: Tab,
     collectionList: CollectionList,
     bottomLoadMore: BottomLoadMore
-  }
+  };
 
   data = {
     browselist: [],
-    favorlist:[],
+    favorlist: [],
     tabList: ["我的足迹", "我的收藏"],
     currentTab: 0,
     winHeight: 0,
@@ -55,74 +57,73 @@ export default class PointsRules extends wepy.page {
     showLoading: true,
     //防止重复加载
     preventRepeatReuqest: false
-  }
+  };
 
-  async getUserBrowse(currentPage, size) {
-    // console.log("足迹");
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    console.log("==========调用aip=======");
-    const json = await api.browseInfo({
-      query: {
-        openId: openId,
-        page: currentPage || 1,
-        size: size || 10
-      }
-    });
-    if (json.data.code == 0) {
-      that.browselist = [...that.browselist, ...json.data.list];
-      that.page_total = json.data.page_total;
-      console.log("that.browselist");
-      console.log(that.browselist);
-      that.$apply();
-      that.$invoke('collectionList', 'refreshList', that.browselist);
-    } else {
-      tip.error(json.data.msg)
-    }
-    that.showLoading = false;
-  }
+  // async getUserBrowse(currentPage, size) {
+  //   // console.log("足迹");
+  //   let that = this;
+  //   let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+  //   let openId = userSpecialInfo.openid;
+  //   console.log("==========调用aip=======");
+  //   const json = await api.browseInfo({
+  //     query: {
+  //       openId: openId,
+  //       page: currentPage || 1,
+  //       size: size || 10
+  //     }
+  //   });
+  //   if (json.data.code == 0) {
+  //     that.browselist = [...that.browselist, ...json.data.list];
+  //     that.page_total = json.data.page_total;
+  //     console.log("that.browselist");
+  //     console.log(that.browselist);
+  //     that.$apply();
+  //     that.$invoke('collectionList', 'refreshList', that.browselist);
+  //   } else {
+  //     tip.error(json.data.msg)
+  //   }
+  //   that.showLoading = false;
+  // }
 
-  async getUserFavorite(currentPage, size) {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.favoriteInfo({
-      query: {
-        openId: openId,
-        page: currentPage || 1,
-        size: size || 10
-      }
-    });
+  // async getUserFavorite(currentPage, size) {
+  //   let that = this;
+  //   let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+  //   let openId = userSpecialInfo.openid;
+  //   const json = await api.favoriteInfo({
+  //     query: {
+  //       openId: openId,
+  //       page: currentPage || 1,
+  //       size: size || 10
+  //     }
+  //   });
 
-    if (json.data.code == 0) {
+  //   if (json.data.code == 0) {
 
-      that.favorlist = [...that.favorlist, ...json.data.list];
-      that.page_total = json.data.page_total;
-      console.log("==========反正數據=======");
-      console.log(that.favorlist);
-      // console.log((json.data);
-      that.$invoke('collectionList', 'refreshList', that.favorlist);
-      that.$apply();
-    } else {
-      tip.error(json.data.msg)
-    }
-    that.showLoading = false;
-  }
-
+  //     that.favorlist = [...that.favorlist, ...json.data.list];
+  //     that.page_total = json.data.page_total;
+  //     console.log("==========反正數據=======");
+  //     console.log(that.favorlist);
+  //     // console.log((json.data);
+  //     that.$invoke('collectionList', 'refreshList', that.favorlist);
+  //     that.$apply();
+  //   } else {
+  //     tip.error(json.data.msg)
+  //   }
+  //   that.showLoading = false;
+  // }
 
   onLoad(opts) {
     let that = this;
     let title = "";
-    that.browselist={};
-    that.favorlist={};
+    that.browselist = {};
+    that.favorlist = {};
     that.list = bb.result.products;
     //opts.type 0：我的足迹 ，1：我的收藏
     that.currentTab = opts.type;
-    if(opts.type==0){
+    if (opts.type == 0) {
       that.getUserBrowse();
-    }else{
-      console.log("调用收藏")
+    } else {
+      console.log("调用收藏");
       that.getUserFavorite();
     }
     //动态设置标题
@@ -132,26 +133,23 @@ export default class PointsRules extends wepy.page {
     let systemInfo = wepy.getStorageSync(SYSTEM_INFO);
     that.winHeight = systemInfo.windowHeight;
     that.$apply();
-
   }
-  computed = {
-
-  }
+  computed = {};
   methods = {
     getCurrentTab(cur, evt) {
       this.currentPage = 1;
       this.page_total = 0;
       let that = this;
       that.currentTab = cur;
-      that.setTitle(cur)
+      that.setTitle(cur);
       console.log("cur");
       console.log(cur);
-      if (cur==1) {
+      if (cur == 1) {
         that.getUserFavorite();
-        that.favorlist={};
+        that.favorlist = {};
       } else {
         that.getUserBrowse();
-        that.browselist={};
+        that.browselist = {};
       }
       that.$apply();
     },
@@ -159,21 +157,18 @@ export default class PointsRules extends wepy.page {
      * 滑动切换tab
      */
     bindChange(e) {
-
       let that = this;
       that.currentTab = e.detail.current;
-      console.log("change tab...."+e.detailcurrent);
+      console.log("change tab...." + e.detailcurrent);
       that.$apply();
-    },
-  }
+    }
+  };
   setTitle(cur) {
     wepy.setNavigationBarTitle({
       title: this.tabList[cur]
-    })
+    });
   }
-  events = {
-
-  }
+  events = {};
 
   //加载更多
   onReachBottom() {
@@ -182,7 +177,7 @@ export default class PointsRules extends wepy.page {
     that.showLoading = true;
     console.log(that.page_total + "===" + that.currentPage);
     //判断总页数是否大于翻页数
-    if ((that.page_total) > that.currentPage) {
+    if (that.page_total > that.currentPage) {
       //防止重复加载
       if (that.preventRepeatReuqest) {
         return true;
@@ -190,7 +185,7 @@ export default class PointsRules extends wepy.page {
       that.preventRepeatReuqest = true;
       that.currentPage++;
       console.log(this.currentTab);
-      if (this.currentTab==0) {
+      if (this.currentTab == 0) {
         console.log("下拉收藏");
         that.getUserBrowse(that.currentPage);
       } else {
@@ -200,7 +195,6 @@ export default class PointsRules extends wepy.page {
     } else {
       that.showLoading = false;
     }
-  };
+  }
 }
-
 </script>

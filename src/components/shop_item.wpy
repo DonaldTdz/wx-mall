@@ -6,7 +6,7 @@
         <!-- <navigator class="item_content" url="/pages/order_detail?orderId={{item.id}}"> -->
           <view class="order_list_top" @tap="openMap" data-add="{{item.address}}" data-latitude="{{item.latitude}}" data-longitude="{{item.longitude}}" data-name="{{item.name}}">
             <view class="left">
-              <view class="title">直营店：
+              <view class="title">店名：
                 <text class="order_doc">{{item.name}}</text>
               </view>
               <view class="title mt10">地址：
@@ -27,7 +27,7 @@
 import wepy from "wepy";
 import tip from "@/utils/tip";
 import ShopItemList from "@/components/shop_item_list";
-import api from "@/api/api";
+// import api from "@/api/api";
 import { SYSTEM_INFO, USER_SPECICAL_INFO } from "@/utils/constant";
 export default class ShopItem extends wepy.component {
   props = {
