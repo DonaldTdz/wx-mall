@@ -10,16 +10,16 @@ const apiMall = 'http://hcwx.sayequ.me'
 const wxJsCode2Session = (params) => wxRequest(params, apiMall + "/api/services/app/Wechat/GetJsCode2Session"); //已替换
 
 //获取热售商品
-const getHeatGoods = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetHeatGoodsAsync');
+const getHeatGoods = (params) => wxRequest(params, apiMall + '/api/services/app/GoodsWechat/GetHeatGoodsAsync');
 //获取商品分类
 const getGoodsCategories = (params) => wxRequest(params, apiMall + '/api/services/app/Category/GetGoodsCategoriesAsync');
 //商品搜索
-const getSearchGoods = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetSearchGoodsAsync');
+const getSearchGoods = (params) => wxRequest(params, apiMall + '/api/services/app/GoodsWechat/GetSearchGoodsAsync');
 //商品分类
-const getGroupGoods = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetGroupGoodsAsync');
+const getGroupGoods = (params) => wxRequest(params, apiMall + '/api/services/app/GoodsWechat/GetGroupGoodsAsync');
 
 //商品明细
-const getGoodsDetail = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetGoodsDetailAsync');
+const getGoodsDetail = (params) => wxRequest(params, apiMall + '/api/services/app/GoodsWechat/GetGoodsDetailAsync');
 
 //添加到购物车
 const addCart = (params) => wxRequest(params, apiMall + '/api/services/app/ShopCart/AddCartAsync');
@@ -78,7 +78,7 @@ const getVipUserById = (params) => wxRequest(params, apiMall + '/api/services/ap
 //获取用户类型
 const getUserTypeNameAsync = (params) => wxRequest(params, apiMall + '/api/services/app/WechatUser/GetUserTypeNameAsync');
 //获取Banner
-const getGoodsBanner = (params) => wxRequest(params, apiMall + '/api/services/app/Good/GetGoodsBanner');
+const getGoodsBanner = (params) => wxRequest(params, apiMall + '/api/services/app/GoodsWechat/GetGoodsBanner');
 //获取直营店信息
 const getShop = (params) => wxRequest(params, apiMall + '/api/services/app/Shop/GetShopAddressAsync');
 
