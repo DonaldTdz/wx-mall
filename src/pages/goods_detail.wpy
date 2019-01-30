@@ -18,10 +18,10 @@
         <!--<view class="order_time {{purchasetype==2||special==1?'hidden':''}}">
           <timer :startTime.sync="startTime" :endTime.sync="endTime"></timer>
         </view> -->
-       <view class="share-box">
+       <!-- <view class="share-box">
           <i class="iconfont icon-share"></i>
           <text>分享</text>
-        </view>
+        </view> -->
       </view>
       <view class="baoyou"> 
         <view class="lable">

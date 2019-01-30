@@ -9,7 +9,7 @@
               <view class="title">订单编号：
                 <text class="order_doc">{{item.number}}</text>
               </view>
-              <view class="title mt10">兑换时间：
+              <view class="title mt10">下单时间：
                 <text class="order_doc">{{item.timeFormat}}</text>
               </view>
             </view>

@@ -13,10 +13,10 @@
           <i class="iconfont icon-search"></i>
           <view class="search_input">搜索商品</view>
         </navigator>
-        <navigator class="message" url="/pages/messages">
+        <!-- <navigator class="message" url="/pages/messages">
           <i class="iconfont icon-message cfff"></i>
           <view class="doc cfff">消息</view>
-        </navigator>
+        </navigator> -->
       </view>
     </view>
     <view class="nav_list">

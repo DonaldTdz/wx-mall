@@ -309,13 +309,13 @@ export default class OrderDetail extends wepy.page {
       this.orderNo = e.currentTarget.dataset.id;
       await tip.confirm("是否取消订单");
       this.cancelOrderById(this.orderNo, this.flag);
-      console.log("删除成功");
+      // console.log("删除成功");
     },
       async  changeQrCode() {
       let that = this;
       if(this.obj.id)
       that.getExchangeQrCode(this.obj.id);
-      console.log("更新二维码");
+      // console.log("更新二维码");
     }
     // async completion(e) {
     //   this.flag = 3;
