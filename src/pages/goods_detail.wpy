@@ -77,7 +77,7 @@
     <view class="block">
       <view class="block_title">兑换说明</view>
       <view class="block_content">
-          <view class="doc" wx:if="{{orderExchange == '邮寄兑换'}}">
+          <view class="doc" style="padding-bottom:30px;" wx:if="{{orderExchange == '邮寄兑换'}}">
           邮寄兑换：订单提交后，营销中心以邮寄的形式将商品寄出，请留意查收。
         </view>
            <view wx:else class="doc">

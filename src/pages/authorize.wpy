@@ -49,45 +49,45 @@ export default class Authorize extends wepy.page {
       })
     }
   }
-  // async onGotUserInfo(e) {
-  //   if (e.detail.errMsg == 'getUserInfo:ok') {
-  //     let res = await wepy.login();
-  //     if (res.code) {
-  //       wepy.setStorageSync(USER_INFO, e.detail.userInfo);
-  //       let systemInfo = wepy.getSystemInfoSync();
-  //       wepy.setStorageSync(SYSTEM_INFO, systemInfo);
-  //       let rlt = await api.wxJsCode2Session({
-  //         query: {
-  //           jsCode: res.code,
-  //           nickName: e.detail.userInfo.nickName
-  //         }
-  //       })
-  //       console.log(rlt.data);
-  //       if (rlt.data.success) {
-  //         let data = rlt.data.result;
-  //         //console.log(JSON.stringify(data));
+  async onGotUserInfo(e) {
+    if (e.detail.errMsg == 'getUserInfo:ok') {
+      let res = await wepy.login();
+      if (res.code) {
+        wepy.setStorageSync(USER_INFO, e.detail.userInfo);
+        let systemInfo = wepy.getSystemInfoSync();
+        wepy.setStorageSync(SYSTEM_INFO, systemInfo);
+        let rlt = await api.wxJsCode2Session({
+          query: {
+            jsCode: res.code,
+            nickName: e.detail.userInfo.nickName
+          }
+        })
+        console.log(rlt.data);
+        if (rlt.data.success) {
+          let data = rlt.data.result;
+          //console.log(JSON.stringify(data));
 
-  //         if (data.openid) {
-  //           wepy.setStorageSync(USER_SPECICAL_INFO, data);
-  //           wepy.switchTab({
-  //             url: '/pages/home'
-  //           })
-  //         }
-  //       } else {
-  //         let res = await wepy.showModal({
-  //           title: 'appid有误',
-  //           content: '授权失败'
-  //         })
-  //         if (res.confirm) {
-  //           wepy.switchTab({
-  //             url: '/pages/home'
-  //           })
-  //         }
-  //       }
+          if (data.openid) {
+            wepy.setStorageSync(USER_SPECICAL_INFO, data);
+            wepy.switchTab({
+              url: '/pages/home'
+            })
+          }
+        } else {
+          let res = await wepy.showModal({
+            title: 'appid有误',
+            content: '授权失败'
+          })
+          if (res.confirm) {
+            wepy.switchTab({
+              url: '/pages/home'
+            })
+          }
+        }
 
-  //     }
-  //   }
-  // }
+      }
+    }
+  }
   methods = {};
   events = {};
 }

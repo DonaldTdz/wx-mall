@@ -4,7 +4,8 @@ import {
 
 let env = "-test" //-dev 或者 -test
 // const apiMall = 'http://localhost:21021/'
-const apiMall = 'http://hcwx.sayequ.me'
+// const apiMall = 'http://hcwx.sayequ.me'
+const apiMall = 'https://wx.hechuangcd.com'
 
 //微信的jscode换取sessionKey
 const wxJsCode2Session = (params) => wxRequest(params, apiMall + "/api/services/app/Wechat/GetJsCode2Session"); //已替换

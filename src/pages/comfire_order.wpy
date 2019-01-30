@@ -62,7 +62,7 @@
       </view>
     </view>
     <view class="pay_box">
-      <form report-submit bindsubmit="goPay" >
+      <form report-submit="true" bindsubmit="goPay" >
         <button form-type="submit" class="button type_green" wx:if="{{canUsePrice >= totalPrice}}" >下单支付</button>
         <button form-type="button" class="button" wx:if="{{canUsePrice < totalPrice}}" disabled>积分不足</button>
       </form>
@@ -180,7 +180,8 @@ export default class ComfireOrder extends wepy.page {
       query: {
         wxOpenId: openId,
         deliveryId: this.address.id,
-        remark: this.sellerMessage
+        remark: this.sellerMessage,
+        formId:formId
       },
       method: 'POST'
     });

@@ -70,14 +70,14 @@
         <text class="title">付款时间:</text>
         <text class="content">{{obj.payedTime}}</text>
       </view>-->
-        <view wx:if="{{obj.status == 2}}" style="text-align:center;">
+        <view wx:if="{{obj.status == 2 && isShowCode == true}}" style="text-align:center;">
                 <image @tap="changeQrCode"
         style="width: 200px; height: 200px; background-color: #eeeeee;"
         mode="scaleToFill"
         src="{{qrCode}}"
       />
           </view>
-            <view wx:if="{{obj.status == 2}}" style="text-align:center;">
+            <view wx:if="{{obj.status == 2 && isShowCode == true}}" style="text-align:center;padding-bottom:30px;">
                  <text>兑换码五分钟内有效，失效请点击兑换码重新生成</text>
           </view>
 
@@ -148,6 +148,7 @@ export default class OrderDetail extends wepy.page {
     id: "",
     flag: "",
     list: [],
+    isShowCode:false,
     isCancel: true,
     orderExpress: {},
     expressFlowInfo: {}
@@ -181,8 +182,17 @@ export default class OrderDetail extends wepy.page {
     });
     if (json.data.success == true) {
       that.list = [...json.data.result.list];
+      for (var i= 0; i < that.list.length; i++) {
+        if (that.list[i].exchangeCode == 1) {
+          console.log('1');
+        this.isShowCode = true;
+        break;
+       }
+}
+
       that.isCancel = json.data.result.isCancel;
       that.$invoke("shopItemList", "refreshList", that.list);
+      that.getOrderInfoById(orderId);
     } else {
       tip.error(json.data.msg);
     }
@@ -201,8 +211,8 @@ export default class OrderDetail extends wepy.page {
     });
     if (json.data.success == true) {
       this.obj = json.data.result;     
-      if(this.obj.status == 2){
-        console.log('111');
+      console.log(this.isShowCode);
+      if(this.obj.status == 2 &&this.isShowCode == true){
       this.getExchangeQrCode(this.obj.id);
       }
       /*that.list = [...that.list, ...json.data.errerTips.orderItemList];
@@ -285,7 +295,7 @@ export default class OrderDetail extends wepy.page {
     //that.list = bb.result.products;
     this.orderId = options.orderId;
     that.getOrderDetailList(this.orderId);
-    that.getOrderInfoById(this.orderId);
+    // that.getOrderInfoById(this.orderId);
     // if(this.obj.number)
     // that.getExchangeQrCode(this.obj.number);
     // that.getOrderExpressInfo();
