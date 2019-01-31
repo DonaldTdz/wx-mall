@@ -77,10 +77,10 @@
     <view class="block">
       <view class="block_title">兑换说明</view>
       <view class="block_content">
-          <view class="doc" style="padding-bottom:30px;" wx:if="{{orderExchange == '邮寄兑换'}}">
+          <view  style="padding-bottom:30px;padding-left:30rpx;padding-bottom:26rpx;" wx:if="{{orderExchange == '邮寄兑换' || orderExchange2 ==true}}">
           邮寄兑换：订单提交后，营销中心以邮寄的形式将商品寄出，请留意查收。
         </view>
-           <view wx:else class="doc">
+             <view wx:if="{{orderExchange == '线下兑换' || orderExchange2 ==true}}" class="doc">
             <view style="padding-left:30rpx;border-bottom:1px solid #efefef;padding-bottom:26rpx;">线下兑换：请前往以下直营店进行线下兑换</view>
              <shopItem :is_empty.sync="is_empty" :list.sync="shopList" ></shopItem>
         </view>
@@ -179,6 +179,7 @@ export default class goodsDetail extends wepy.page {
     //购买数量
     orderNum: 1,
     orderExchange: "",
+    orderExchange2:false,
     //是否收藏
     isFavorite: false,
     isValidDate: true,
@@ -287,7 +288,15 @@ export default class goodsDetail extends wepy.page {
           that.canOrder = false;
           that.purchaseText = '商品剩余为0';
       }
+      if(that.detail.exchangeList.length == 1){
       that.orderExchange = that.detail.exchangeList[0];
+            // console.log(that.orderExchange);
+      }
+      else if(that.detail.exchangeList.length >1){
+      that.orderExchange2 = true;
+      // console.log(that.orderExchange2);
+      }
+      
       // if(that.orderExchange != "邮寄兑换"){
       //   that.getShop();
       //   let here = that;

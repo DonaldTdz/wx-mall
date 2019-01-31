@@ -139,7 +139,7 @@ export default class Home extends wepy.page {
     });
     if (json.data.success == true) {
       this.adList = json.data.result;
-      console.log(this.adList);
+      // console.log(this.adList);
       this.$apply();
     } else {}
   }
@@ -173,7 +173,7 @@ export default class Home extends wepy.page {
     onShareAppMessage: function(res) {
       if (res.from === 'button') {
         // 来自页面内转发按钮
-        console.log(res.target)
+        // console.log(res.target)
       }
       return {
         title: '达州烟草',
