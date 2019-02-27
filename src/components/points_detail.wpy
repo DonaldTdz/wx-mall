@@ -13,7 +13,7 @@
     </view>
   </view>
   <!--暂无数据显示-->
-  <placeholder :show.sync="is_empty" message="暂无积分数据"></placeholder>
+  <!-- <placeholder :show.sync="is_empty" message="暂无积分数据"></placeholder> -->
 </template>
 <script>
 import wepy from "wepy";
